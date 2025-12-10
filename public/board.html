@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시판</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid white;
+            padding: 8px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .write-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .write-section h2 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .posts-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .posts-section h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .post-item {
+            border-bottom: 1px solid #eee;
+            padding: 20px 0;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .post-item:hover {
+            background: #f9f9f9;
+            padding: 20px 10px;
+            margin: 0 -10px;
+            border-radius: 5px;
+        }
+
+        .post-item:last-child {
+            border-bottom: none;
+        }
+
+        .post-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .post-meta {
+            font-size: 14px;
+            color: #888;
+        }
+
+        .post-content-preview {
+            margin-top: 10px;
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .no-posts {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 30px;
+            cursor: pointer;
+            color: #999;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            line-height: 1;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .modal-meta {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 20px;
+        }
+
+        .modal-body {
+            line-height: 1.8;
+            color: #444;
+            white-space: pre-wrap;
+        }
+
+        .message {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            text-align: center;
+            display: none;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>게시판</h1>
+            <div class="user-info">
+                <span id="welcomeMsg"></span>
+                <button class="logout-btn" onclick="logout()">로그아웃</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="write-section">
+            <h2>글 작성</h2>
+            <div id="message" class="message"></div>
+            <form id="postForm">
+                <div class="form-group">
+                    <label for="title">제목</label>
+                    <input type="text" id="title" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="content">내용</label>
+                    <textarea id="content" name="content" required></textarea>
+                </div>
+                <button type="submit" class="submit-btn">작성하기</button>
+            </form>
+        </div>
+
+        <div class="posts-section">
+            <h2>전체 게시글</h2>
+            <div id="postsList"></div>
+        </div>
+    </div>
+
+    <!-- 게시글 상세 모달 -->
+    <div id="postModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle"></h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-meta" id="modalMeta"></div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+
+        // 페이지 로드시 로그인 체크
+        window.onload = function() {
+            const userStr = localStorage.getItem('user');
+            if (!userStr) {
+                alert('로그인이 필요합니다.');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            currentUser = JSON.parse(userStr);
+            document.getElementById('welcomeMsg').textContent = `${currentUser.name}님 환영합니다!`;
+
+            loadPosts();
+        };
+
+        // 로그아웃
+        function logout() {
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+
+        // 게시글 작성
+        document.getElementById('postForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const title = document.getElementById('title').value;
+            const content = document.getElementById('content').value;
+
+            try {
+                const response = await fetch('/api/posts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title,
+                        content,
+                        author: currentUser.name,
+                        authorId: currentUser.id
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('게시글이 작성되었습니다!', 'success');
+                    document.getElementById('title').value = '';
+                    document.getElementById('content').value = '';
+                    loadPosts();
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('서버 오류가 발생했습니다.', 'error');
+            }
+        });
+
+        // 게시글 목록 불러오기
+        async function loadPosts() {
+            try {
+                const response = await fetch('/api/posts');
+                const data = await response.json();
+
+                if (data.success) {
+                    displayPosts(data.posts);
+                }
+            } catch (error) {
+                console.error('게시글 로드 실패:', error);
+            }
+        }
+
+        // 게시글 목록 표시
+        function displayPosts(posts) {
+            const postsListDiv = document.getElementById('postsList');
+
+            if (posts.length === 0) {
+                postsListDiv.innerHTML = '<div class="no-posts">작성된 게시글이 없습니다.</div>';
+                return;
+            }
+
+            postsListDiv.innerHTML = posts.map(post => `
+                <div class="post-item" onclick="showPostDetail(${post.id})">
+                    <div class="post-title">${escapeHtml(post.title)}</div>
+                    <div class="post-meta">작성자: ${escapeHtml(post.author)} | 작성일: ${formatDate(post.createdAt)}</div>
+                    <div class="post-content-preview">${escapeHtml(post.content.substring(0, 100))}${post.content.length > 100 ? '...' : ''}</div>
+                </div>
+            `).join('');
+        }
+
+        // 게시글 상세 보기
+        async function showPostDetail(postId) {
+            try {
+                const response = await fetch(`/api/posts/${postId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const post = data.post;
+                    document.getElementById('modalTitle').textContent = post.title;
+                    document.getElementById('modalMeta').textContent = `작성자: ${post.author} | 작성일: ${formatDate(post.createdAt)}`;
+                    document.getElementById('modalBody').textContent = post.content;
+                    document.getElementById('postModal').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('게시글 로드 실패:', error);
+            }
+        }
+
+        // 모달 닫기
+        function closeModal() {
+            document.getElementById('postModal').style.display = 'none';
+        }
+
+        // 모달 외부 클릭시 닫기
+        window.onclick = function(event) {
+            const modal = document.getElementById('postModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
+
+        // 메시지 표시
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = message;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        // 날짜 포맷팅
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day} ${hours}:${minutes}`;
+        }
+
+        // HTML 이스케이프 (XSS 방지)
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
