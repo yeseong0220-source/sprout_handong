@@ -321,7 +321,15 @@
             }
 
             currentUser = JSON.parse(userStr);
-            document.getElementById('welcomeMsg').textContent = `${currentUser.name}님 환영합니다!`;
+
+            // 닉네임이 없으면 닉네임 설정 페이지로 리다이렉트
+            if (!currentUser.nickname) {
+                alert('먼저 닉네임을 설정해주세요.');
+                window.location.href = 'nickname.html';
+                return;
+            }
+
+            document.getElementById('welcomeMsg').textContent = `${currentUser.nickname}님 환영합니다!`;
 
             loadPosts();
         };
@@ -348,7 +356,7 @@
                     body: JSON.stringify({
                         title,
                         content,
-                        author: currentUser.name,
+                        author: currentUser.nickname,
                         authorId: currentUser.id
                     })
                 });

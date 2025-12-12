@@ -74,6 +74,33 @@ app.post('/api/signup', (req, res) => {
     res.json({ success: true, message: '회원가입이 완료되었습니다.' });
 });
 
+// 닉네임 설정 API
+app.post('/api/set-nickname', (req, res) => {
+    const { userId, nickname } = req.body;
+
+    if (!userId || !nickname) {
+        return res.status(400).json({ success: false, message: '필수 정보가 없습니다.' });
+    }
+
+    const users = readUsers();
+    const userIndex = users.findIndex(u => u.id === userId);
+
+    if (userIndex === -1) {
+        return res.status(404).json({ success: false, message: '사용자를 찾을 수 없습니다.' });
+    }
+
+    // 닉네임 중복 체크
+    const existingNickname = users.find(u => u.nickname === nickname && u.id !== userId);
+    if (existingNickname) {
+        return res.status(400).json({ success: false, message: '이미 사용중인 닉네임입니다.' });
+    }
+
+    users[userIndex].nickname = nickname;
+    writeUsers(users);
+
+    res.json({ success: true, message: '닉네임이 설정되었습니다.' });
+});
+
 // 로그인 API
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
@@ -95,7 +122,8 @@ app.post('/api/login', (req, res) => {
         user: {
             id: user.id,
             username: user.username,
-            name: user.name
+            name: user.name,
+            nickname: user.nickname || null
         }
     });
 });
