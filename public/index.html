@@ -166,16 +166,16 @@
                     // 사용자 정보를 localStorage에 저장
                     localStorage.setItem('user', JSON.stringify(data.user));
 
-                    // 닉네임이 없으면 닉네임 설정 페이지로, 있으면 게시판으로
+                    // 닉네임이 없으면 프로필 설정 페이지로, 있으면 홈으로
                     if (!data.user.nickname) {
-                        showMessage('로그인 성공! 닉네임 설정 페이지로 이동합니다...', 'success');
+                        showMessage('로그인 성공! 프로필 설정 페이지로 이동합니다...', 'success');
                         setTimeout(() => {
                             window.location.href = 'nickname.html';
                         }, 1000);
                     } else {
-                        showMessage('로그인 성공! 게시판으로 이동합니다...', 'success');
+                        showMessage('로그인 성공! 홈으로 이동합니다...', 'success');
                         setTimeout(() => {
-                            window.location.href = 'board.html';
+                            window.location.href = 'home.html';
                         }, 1000);
                     }
                 } else {

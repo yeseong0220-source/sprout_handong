@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>홈 - Birthday Handong</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        /* 네비게이션 바 */
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .navbar-brand {
+            font-size: 24px;
+            font-weight: 700;
+            padding: 20px 0;
+        }
+
+        .navbar-menu {
+            display: flex;
+            list-style: none;
+            gap: 0;
+        }
+
+        .navbar-menu li {
+            position: relative;
+        }
+
+        .navbar-menu a {
+            color: white;
+            text-decoration: none;
+            padding: 20px 25px;
+            display: block;
+            transition: background 0.3s;
+            font-weight: 500;
+        }
+
+        .navbar-menu a:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .navbar-menu a::after {
+            content: attr(data-en);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            white-space: nowrap;
+        }
+
+        .navbar-menu a:hover::after {
+            opacity: 1;
+        }
+
+        .navbar-menu a:hover .menu-text {
+            opacity: 0;
+        }
+
+        .menu-text {
+            transition: opacity 0.3s;
+        }
+
+        .navbar-user {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info {
+            font-size: 14px;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid white;
+            padding: 8px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-size: 14px;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* 메인 컨텐츠 */
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .welcome-section {
+            background: white;
+            padding: 60px 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .welcome-section h1 {
+            font-size: 48px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .welcome-section p {
+            font-size: 18px;
+            color: #666;
+            line-height: 1.8;
+        }
+
+        .rc-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-top: 15px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .feature-card h3 {
+            font-size: 22px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .navbar-content {
+                flex-direction: column;
+                padding: 10px 20px;
+            }
+
+            .navbar-menu {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .navbar-menu a {
+                padding: 15px 20px;
+            }
+
+            .welcome-section h1 {
+                font-size: 32px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 네비게이션 바 -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="navbar-brand">🎂 Birthday Handong</div>
+
+            <ul class="navbar-menu">
+                <li><a href="home.html" data-en="Home"><span class="menu-text">홈</span></a></li>
+                <li><a href="birthday-board.html" data-en="Birthday Wishes"><span class="menu-text">생일 축하방</span></a></li>
+                <li><a href="calendar.html" data-en="Calendar"><span class="menu-text">생일 달력</span></a></li>
+                <li><a href="album.html" data-en="Album"><span class="menu-text">생일 앨범</span></a></li>
+            </ul>
+
+            <div class="navbar-user">
+                <span class="user-info" id="userInfo"></span>
+                <button class="logout-btn" onclick="logout()">로그아웃</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 메인 컨텐츠 -->
+    <div class="container">
+        <div class="welcome-section">
+            <h1>환영합니다! 🎉</h1>
+            <p id="welcomeMsg"></p>
+            <div class="rc-badge" id="rcBadge"></div>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card" onclick="location.href='birthday-board.html'">
+                <div class="feature-icon">🎂</div>
+                <h3>생일 축하방</h3>
+                <p>같은 RC 친구들의 생일을 축하하고<br>따뜻한 메시지를 남겨보세요</p>
+            </div>
+
+            <div class="feature-card" onclick="location.href='calendar.html'">
+                <div class="feature-icon">📅</div>
+                <h3>생일 달력</h3>
+                <p>RC 친구들의 생일을 달력으로<br>한눈에 확인하세요</p>
+            </div>
+
+            <div class="feature-card" onclick="location.href='album.html'">
+                <div class="feature-icon">📸</div>
+                <h3>생일 앨범</h3>
+                <p>특별한 생일 순간들을<br>사진으로 공유하세요</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+
+        window.onload = function() {
+            const userStr = localStorage.getItem('user');
+            if (!userStr) {
+                alert('로그인이 필요합니다.');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            currentUser = JSON.parse(userStr);
+
+            // 닉네임이나 RC가 없으면 프로필 설정 페이지로
+            if (!currentUser.nickname || !currentUser.rc) {
+                alert('먼저 프로필을 설정해주세요.');
+                window.location.href = 'nickname.html';
+                return;
+            }
+
+            // 사용자 정보 표시
+            document.getElementById('userInfo').textContent = `${currentUser.nickname}님`;
+            document.getElementById('welcomeMsg').textContent =
+                `${currentUser.nickname}님, Birthday Handong에 오신 것을 환영합니다!`;
+            document.getElementById('rcBadge').textContent = currentUser.rc;
+        };
+
+        function logout() {
+            if (confirm('로그아웃 하시겠습니까?')) {
+                localStorage.removeItem('user');
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>생일 축하방 - Birthday Handong</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        /* 네비게이션 바 */
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .navbar-brand {
+            font-size: 24px;
+            font-weight: 700;
+            padding: 20px 0;
+            cursor: pointer;
+        }
+
+        .navbar-menu {
+            display: flex;
+            list-style: none;
+            gap: 0;
+        }
+
+        .navbar-menu a {
+            color: white;
+            text-decoration: none;
+            padding: 20px 25px;
+            display: block;
+            transition: background 0.3s;
+            position: relative;
+        }
+
+        .navbar-menu a:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .navbar-menu a::after {
+            content: attr(data-en);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            white-space: nowrap;
+        }
+
+        .navbar-menu a:hover::after {
+            opacity: 1;
+        }
+
+        .navbar-menu a:hover .menu-text {
+            opacity: 0;
+        }
+
+        .menu-text {
+            transition: opacity 0.3s;
+        }
+
+        .navbar-user {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info {
+            font-size: 14px;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid white;
+            padding: 8px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-size: 14px;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* 컨테이너 */
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        /* 글 작성 섹션 */
+        .write-section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .write-section h2 {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 22px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* 게시글 섹션 */
+        .posts-section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .posts-section h2 {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 22px;
+        }
+
+        .post-item {
+            border-bottom: 1px solid #eee;
+            padding: 20px 0;
+            transition: background 0.2s;
+        }
+
+        .post-item:hover {
+            background: #f9f9f9;
+            padding: 20px 15px;
+            margin: 0 -15px;
+            border-radius: 8px;
+        }
+
+        .post-item:last-child {
+            border-bottom: none;
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .post-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .post-title:hover {
+            color: #667eea;
+        }
+
+        .heart-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px 10px;
+            transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .heart-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .heart-btn.liked {
+            color: #e74c3c;
+        }
+
+        .heart-count {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .post-meta {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .post-content-preview {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .no-posts {
+            text-align: center;
+            padding: 60px;
+            color: #999;
+            font-size: 16px;
+        }
+
+        /* 모달 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 2000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 35px;
+            border-radius: 15px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            flex: 1;
+            margin-right: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 32px;
+            cursor: pointer;
+            color: #999;
+            padding: 0;
+            width: 35px;
+            height: 35px;
+            line-height: 1;
+            transition: color 0.3s;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .modal-meta {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 25px;
+        }
+
+        .modal-body {
+            line-height: 1.8;
+            color: #444;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 15px;
+        }
+
+        .message {
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .navbar-content {
+                flex-direction: column;
+                padding: 10px 20px;
+            }
+
+            .navbar-menu {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .navbar-menu a {
+                padding: 15px 18px;
+                font-size: 14px;
+            }
+
+            .post-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .heart-btn {
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 네비게이션 바 -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="navbar-brand" onclick="location.href='home.html'">🎂 Birthday Handong</div>
+
+            <ul class="navbar-menu">
+                <li><a href="home.html" data-en="Home"><span class="menu-text">홈</span></a></li>
+                <li><a href="birthday-board.html" data-en="Birthday Wishes"><span class="menu-text">생일 축하방</span></a></li>
+                <li><a href="calendar.html" data-en="Calendar"><span class="menu-text">생일 달력</span></a></li>
+                <li><a href="album.html" data-en="Album"><span class="menu-text">생일 앨범</span></a></li>
+            </ul>
+
+            <div class="navbar-user">
+                <span class="user-info" id="userInfo"></span>
+                <button class="logout-btn" onclick="logout()">로그아웃</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 메인 컨텐츠 -->
+    <div class="container">
+        <!-- 글 작성 섹션 -->
+        <div class="write-section">
+            <h2>🎉 생일 축하 메시지 작성</h2>
+            <div id="message" class="message"></div>
+            <form id="postForm">
+                <div class="form-group">
+                    <label for="title">제목</label>
+                    <input type="text" id="title" name="title" required placeholder="예: 민수야 생일 축하해!">
+                </div>
+                <div class="form-group">
+                    <label for="content">축하 메시지</label>
+                    <textarea id="content" name="content" required placeholder="따뜻한 생일 축하 메시지를 남겨주세요 ❤️"></textarea>
+                </div>
+                <button type="submit" class="submit-btn">작성하기</button>
+            </form>
+        </div>
+
+        <!-- 게시글 목록 -->
+        <div class="posts-section">
+            <h2>🎂 우리 RC 생일 축하 메시지</h2>
+            <div id="postsList"></div>
+        </div>
+    </div>
+
+    <!-- 게시글 상세 모달 -->
+    <div id="postModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle"></h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-meta" id="modalMeta"></div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+
+        // 페이지 로드시
+        window.onload = function() {
+            const userStr = localStorage.getItem('user');
+            if (!userStr) {
+                alert('로그인이 필요합니다.');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            currentUser = JSON.parse(userStr);
+
+            // 프로필 체크
+            if (!currentUser.nickname || !currentUser.rc) {
+                alert('먼저 프로필을 설정해주세요.');
+                window.location.href = 'nickname.html';
+                return;
+            }
+
+            document.getElementById('userInfo').textContent = `${currentUser.nickname} (${currentUser.rc})`;
+
+            loadPosts();
+        };
+
+        // 로그아웃
+        function logout() {
+            if (confirm('로그아웃 하시겠습니까?')) {
+                localStorage.removeItem('user');
+                window.location.href = 'index.html';
+            }
+        }
+
+        // 게시글 작성
+        document.getElementById('postForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const title = document.getElementById('title').value.trim();
+            const content = document.getElementById('content').value.trim();
+
+            if (!title || !content) {
+                showMessage('제목과 내용을 모두 입력해주세요.', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/posts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title,
+                        content,
+                        author: currentUser.nickname,
+                        authorId: currentUser.id,
+                        rc: currentUser.rc
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('생일 축하 메시지가 작성되었습니다! 🎉', 'success');
+                    document.getElementById('title').value = '';
+                    document.getElementById('content').value = '';
+                    loadPosts();
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('서버 오류가 발생했습니다.', 'error');
+            }
+        });
+
+        // 게시글 목록 불러오기 (RC 필터링)
+        async function loadPosts() {
+            try {
+                const response = await fetch(`/api/posts?rc=${encodeURIComponent(currentUser.rc)}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    displayPosts(data.posts);
+                }
+            } catch (error) {
+                console.error('게시글 로드 실패:', error);
+            }
+        }
+
+        // 게시글 목록 표시
+        function displayPosts(posts) {
+            const postsListDiv = document.getElementById('postsList');
+
+            if (posts.length === 0) {
+                postsListDiv.innerHTML = '<div class="no-posts">아직 작성된 생일 축하 메시지가 없습니다.<br>첫 번째 메시지를 남겨보세요! 🎂</div>';
+                return;
+            }
+
+            postsListDiv.innerHTML = posts.map(post => `
+                <div class="post-item">
+                    <div class="post-header">
+                        <div class="post-title" onclick="showPostDetail(${post.id})">${escapeHtml(post.title)}</div>
+                        <button class="heart-btn ${post.likedBy && post.likedBy.includes(currentUser.id) ? 'liked' : ''}"
+                                onclick="toggleHeart(${post.id})">
+                            <span>${post.likedBy && post.likedBy.includes(currentUser.id) ? '❤️' : '🤍'}</span>
+                            <span class="heart-count">${post.likes || 0}</span>
+                        </button>
+                    </div>
+                    <div class="post-meta">작성자: ${escapeHtml(post.author)} | 작성일: ${formatDate(post.createdAt)}</div>
+                    <div class="post-content-preview">${escapeHtml(post.content.substring(0, 100))}${post.content.length > 100 ? '...' : ''}</div>
+                </div>
+            `).join('');
+        }
+
+        // 하트 토글
+        async function toggleHeart(postId) {
+            try {
+                const response = await fetch('/api/posts/like', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        postId: postId,
+                        userId: currentUser.id
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    loadPosts(); // 목록 새로고침
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                alert('오류가 발생했습니다.');
+            }
+        }
+
+        // 게시글 상세 보기
+        async function showPostDetail(postId) {
+            try {
+                const response = await fetch(`/api/posts/${postId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const post = data.post;
+                    document.getElementById('modalTitle').textContent = post.title;
+                    document.getElementById('modalMeta').textContent =
+                        `작성자: ${post.author} | 작성일: ${formatDate(post.createdAt)} | 좋아요: ${post.likes || 0}`;
+                    document.getElementById('modalBody').textContent = post.content;
+                    document.getElementById('postModal').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('게시글 로드 실패:', error);
+            }
+        }
+
+        // 모달 닫기
+        function closeModal() {
+            document.getElementById('postModal').style.display = 'none';
+        }
+
+        // 모달 외부 클릭시 닫기
+        window.onclick = function(event) {
+            const modal = document.getElementById('postModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
+
+        // 메시지 표시
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = message;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        // 날짜 포맷팅
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day} ${hours}:${minutes}`;
+        }
+
+        // HTML 이스케이프 (XSS 방지)
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

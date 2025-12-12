@@ -74,12 +74,18 @@ app.post('/api/signup', (req, res) => {
     res.json({ success: true, message: '회원가입이 완료되었습니다.' });
 });
 
-// 닉네임 설정 API
-app.post('/api/set-nickname', (req, res) => {
-    const { userId, nickname } = req.body;
+// 프로필 설정 API (닉네임 + RC)
+app.post('/api/set-profile', (req, res) => {
+    const { userId, nickname, rc } = req.body;
 
-    if (!userId || !nickname) {
+    // 입력값 검증
+    if (!userId || !nickname || !rc) {
         return res.status(400).json({ success: false, message: '필수 정보가 없습니다.' });
+    }
+
+    // 공백 체크
+    if (nickname.trim() === '') {
+        return res.status(400).json({ success: false, message: '닉네임을 입력해주세요.' });
     }
 
     const users = readUsers();
@@ -90,15 +96,22 @@ app.post('/api/set-nickname', (req, res) => {
     }
 
     // 닉네임 중복 체크
-    const existingNickname = users.find(u => u.nickname === nickname && u.id !== userId);
+    const existingNickname = users.find(u => u.nickname === nickname.trim() && u.id !== userId);
     if (existingNickname) {
         return res.status(400).json({ success: false, message: '이미 사용중인 닉네임입니다.' });
     }
 
-    users[userIndex].nickname = nickname;
+    // RC 유효성 검증
+    const validRCs = ['토레이 College', '손양원 College', '카이퍼 College', '장기려 College', '카마이클 College'];
+    if (!validRCs.includes(rc)) {
+        return res.status(400).json({ success: false, message: '올바른 RC를 선택해주세요.' });
+    }
+
+    users[userIndex].nickname = nickname.trim();
+    users[userIndex].rc = rc;
     writeUsers(users);
 
-    res.json({ success: true, message: '닉네임이 설정되었습니다.' });
+    res.json({ success: true, message: '프로필이 설정되었습니다.' });
 });
 
 // 로그인 API
@@ -123,14 +136,22 @@ app.post('/api/login', (req, res) => {
             id: user.id,
             username: user.username,
             name: user.name,
-            nickname: user.nickname || null
+            nickname: user.nickname || null,
+            rc: user.rc || null
         }
     });
 });
 
-// 게시글 목록 조회 API
+// 게시글 목록 조회 API (RC 필터링)
 app.get('/api/posts', (req, res) => {
-    const posts = readPosts();
+    const { rc } = req.query;
+    let posts = readPosts();
+
+    // RC 필터링
+    if (rc) {
+        posts = posts.filter(post => post.rc === rc);
+    }
+
     // 최신글이 위로 오도록 정렬
     posts.sort((a, b) => b.id - a.id);
     res.json({ success: true, posts });
@@ -138,9 +159,15 @@ app.get('/api/posts', (req, res) => {
 
 // 게시글 작성 API
 app.post('/api/posts', (req, res) => {
-    const { title, content, author, authorId } = req.body;
+    const { title, content, author, authorId, rc } = req.body;
 
+    // 입력값 검증
     if (!title || !content || !author) {
+        return res.status(400).json({ success: false, message: '제목과 내용을 입력해주세요.' });
+    }
+
+    // 공백 체크
+    if (title.trim() === '' || content.trim() === '') {
         return res.status(400).json({ success: false, message: '제목과 내용을 입력해주세요.' });
     }
 
@@ -148,10 +175,13 @@ app.post('/api/posts', (req, res) => {
 
     const newPost = {
         id: Date.now(),
-        title,
-        content,
+        title: title.trim(),
+        content: content.trim(),
         author,
         authorId,
+        rc: rc || null,
+        likes: 0,
+        likedBy: [],
         createdAt: new Date().toISOString()
     };
 
@@ -172,6 +202,45 @@ app.get('/api/posts/:id', (req, res) => {
     }
 
     res.json({ success: true, post });
+});
+
+// 게시글 좋아요(하트) API
+app.post('/api/posts/like', (req, res) => {
+    const { postId, userId } = req.body;
+
+    if (!postId || !userId) {
+        return res.status(400).json({ success: false, message: '필수 정보가 없습니다.' });
+    }
+
+    const posts = readPosts();
+    const postIndex = posts.findIndex(p => p.id === postId);
+
+    if (postIndex === -1) {
+        return res.status(404).json({ success: false, message: '게시글을 찾을 수 없습니다.' });
+    }
+
+    // 좋아요 배열 초기화 (기존 게시글 호환성)
+    if (!posts[postIndex].likedBy) {
+        posts[postIndex].likedBy = [];
+        posts[postIndex].likes = 0;
+    }
+
+    // 좋아요 토글
+    const likedIndex = posts[postIndex].likedBy.indexOf(userId);
+
+    if (likedIndex > -1) {
+        // 이미 좋아요를 누른 경우 -> 취소
+        posts[postIndex].likedBy.splice(likedIndex, 1);
+        posts[postIndex].likes = posts[postIndex].likedBy.length;
+        writePosts(posts);
+        res.json({ success: true, message: '좋아요가 취소되었습니다.', liked: false });
+    } else {
+        // 좋아요 추가
+        posts[postIndex].likedBy.push(userId);
+        posts[postIndex].likes = posts[postIndex].likedBy.length;
+        writePosts(posts);
+        res.json({ success: true, message: '좋아요!', liked: true });
+    }
 });
 
 // 서버 시작
