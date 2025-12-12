@@ -102,7 +102,7 @@ app.post('/api/set-profile', (req, res) => {
     }
 
     // RC 유효성 검증
-    const validRCs = ['토레이 College', '손양원 College', '카이퍼 College', '장기려 College', '카마이클 College'];
+    const validRCs = ['토레이 College', '손양원 College', '카이퍼 College', '열송학사', '장기려 College', '카마이클 College'];
     if (!validRCs.includes(rc)) {
         return res.status(400).json({ success: false, message: '올바른 RC를 선택해주세요.' });
     }
@@ -157,7 +157,7 @@ app.post('/api/update-rc', (req, res) => {
     }
 
     // RC 유효성 검증
-    const validRCs = ['토레이 College', '손양원 College', '카이퍼 College', '장기려 College', '카마이클 College'];
+    const validRCs = ['토레이 College', '손양원 College', '카이퍼 College', '열송학사', '장기려 College', '카마이클 College'];
     if (!validRCs.includes(rc)) {
         return res.status(400).json({ success: false, message: '올바른 RC를 선택해주세요.' });
     }
