@@ -114,6 +114,67 @@ app.post('/api/set-profile', (req, res) => {
     res.json({ success: true, message: '프로필이 설정되었습니다.' });
 });
 
+// 닉네임 변경 API
+app.post('/api/update-nickname', (req, res) => {
+    const { userId, nickname } = req.body;
+
+    // 입력값 검증
+    if (!userId || !nickname) {
+        return res.status(400).json({ success: false, message: '필수 정보가 없습니다.' });
+    }
+
+    // 공백 체크
+    if (nickname.trim() === '') {
+        return res.status(400).json({ success: false, message: '닉네임을 입력해주세요.' });
+    }
+
+    const users = readUsers();
+    const userIndex = users.findIndex(u => u.id === userId);
+
+    if (userIndex === -1) {
+        return res.status(404).json({ success: false, message: '사용자를 찾을 수 없습니다.' });
+    }
+
+    // 닉네임 중복 체크
+    const existingNickname = users.find(u => u.nickname === nickname.trim() && u.id !== userId);
+    if (existingNickname) {
+        return res.status(400).json({ success: false, message: '이미 사용중인 닉네임입니다.' });
+    }
+
+    users[userIndex].nickname = nickname.trim();
+    writeUsers(users);
+
+    res.json({ success: true, message: '닉네임이 변경되었습니다.' });
+});
+
+// RC 변경 API
+app.post('/api/update-rc', (req, res) => {
+    const { userId, rc } = req.body;
+
+    // 입력값 검증
+    if (!userId || !rc) {
+        return res.status(400).json({ success: false, message: '필수 정보가 없습니다.' });
+    }
+
+    // RC 유효성 검증
+    const validRCs = ['토레이 College', '손양원 College', '카이퍼 College', '장기려 College', '카마이클 College'];
+    if (!validRCs.includes(rc)) {
+        return res.status(400).json({ success: false, message: '올바른 RC를 선택해주세요.' });
+    }
+
+    const users = readUsers();
+    const userIndex = users.findIndex(u => u.id === userId);
+
+    if (userIndex === -1) {
+        return res.status(404).json({ success: false, message: '사용자를 찾을 수 없습니다.' });
+    }
+
+    users[userIndex].rc = rc;
+    writeUsers(users);
+
+    res.json({ success: true, message: 'RC가 변경되었습니다.' });
+});
+
 // 로그인 API
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;

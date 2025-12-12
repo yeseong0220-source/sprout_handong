@@ -58,6 +58,28 @@
             background: rgba(255, 255, 255, 0.2);
         }
 
+        .navbar-user {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .settings-btn, .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid white;
+            padding: 8px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        .settings-btn:hover, .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
         .container {
             max-width: 1200px;
             margin: 40px auto;
@@ -94,6 +116,12 @@
                 <li><a href="calendar.html">생일 달력</a></li>
                 <li><a href="album.html">생일 앨범</a></li>
             </ul>
+
+            <div class="navbar-user">
+                <span id="userInfo"></span>
+                <a href="settings.html" class="settings-btn">설정</a>
+                <button class="logout-btn" onclick="logout()">로그아웃</button>
+            </div>
         </div>
     </nav>
 
@@ -103,5 +131,32 @@
             <p>곧 제공될 예정입니다</p>
         </div>
     </div>
+
+    <script>
+        window.onload = function() {
+            const userStr = localStorage.getItem('user');
+            if (!userStr) {
+                alert('로그인이 필요합니다.');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const currentUser = JSON.parse(userStr);
+            if (!currentUser.nickname || !currentUser.rc) {
+                alert('먼저 프로필을 설정해주세요.');
+                window.location.href = 'nickname.html';
+                return;
+            }
+
+            document.getElementById('userInfo').textContent = currentUser.nickname;
+        };
+
+        function logout() {
+            if (confirm('로그아웃 하시겠습니까?')) {
+                localStorage.removeItem('user');
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
 </body>
 </html>

@@ -96,7 +96,7 @@
             font-size: 14px;
         }
 
-        .logout-btn {
+        .settings-btn, .logout-btn {
             background: rgba(255, 255, 255, 0.2);
             color: white;
             border: 1px solid white;
@@ -105,9 +105,10 @@
             cursor: pointer;
             transition: background 0.3s;
             font-size: 14px;
+            text-decoration: none;
         }
 
-        .logout-btn:hover {
+        .settings-btn:hover, .logout-btn:hover {
             background: rgba(255, 255, 255, 0.3);
         }
 
@@ -415,6 +416,7 @@
 
             <div class="navbar-user">
                 <span class="user-info" id="userInfo"></span>
+                <a href="settings.html" class="settings-btn">설정</a>
                 <button class="logout-btn" onclick="logout()">로그아웃</button>
             </div>
         </div>

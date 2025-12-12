@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>설정 - Birthday Handong</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .navbar-brand {
+            font-size: 24px;
+            font-weight: 700;
+            padding: 20px 0;
+            cursor: pointer;
+        }
+
+        .navbar-menu {
+            display: flex;
+            list-style: none;
+            gap: 0;
+        }
+
+        .navbar-menu a {
+            color: white;
+            text-decoration: none;
+            padding: 20px 25px;
+            display: block;
+            transition: background 0.3s;
+        }
+
+        .navbar-menu a:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .navbar-user {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .settings-btn, .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid white;
+            padding: 8px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        .settings-btn:hover, .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .settings-card {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .settings-card h1 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .settings-card .subtitle {
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 16px;
+        }
+
+        .setting-section {
+            margin-bottom: 40px;
+            padding-bottom: 40px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .setting-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .setting-section h2 {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .setting-section p {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .current-value {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .current-value strong {
+            color: #667eea;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group select {
+            cursor: pointer;
+            background-color: white;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .message {
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .warning-box strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="navbar-brand" onclick="location.href='home.html'">🎂 Birthday Handong</div>
+            <ul class="navbar-menu">
+                <li><a href="home.html">홈</a></li>
+                <li><a href="birthday-board.html">생일 축하방</a></li>
+                <li><a href="calendar.html">생일 달력</a></li>
+                <li><a href="album.html">생일 앨범</a></li>
+            </ul>
+            <div class="navbar-user">
+                <span id="userInfo"></span>
+                <a href="settings.html" class="settings-btn">설정</a>
+                <button class="logout-btn" onclick="logout()">로그아웃</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="settings-card">
+            <h1>⚙️ 설정</h1>
+            <p class="subtitle">프로필 정보를 관리하세요</p>
+
+            <div id="message" class="message"></div>
+
+            <!-- 닉네임 섹션 -->
+            <div class="setting-section">
+                <h2>닉네임</h2>
+                <div class="current-value">
+                    현재 닉네임: <strong id="currentNickname"></strong>
+                </div>
+                <p>닉네임은 게시판에서 표시되는 이름입니다.</p>
+                <form id="nicknameForm">
+                    <div class="form-group">
+                        <label for="newNickname">새 닉네임</label>
+                        <input type="text" id="newNickname" placeholder="변경할 닉네임을 입력하세요">
+                    </div>
+                    <button type="submit" class="btn">닉네임 변경</button>
+                </form>
+            </div>
+
+            <!-- RC 섹션 -->
+            <div class="setting-section">
+                <h2>RC (Residential College)</h2>
+                <div class="current-value">
+                    현재 RC: <strong id="currentRC"></strong>
+                </div>
+                <div class="warning-box">
+                    <strong>⚠️ 주의사항</strong>
+                    RC를 변경하면 이전 RC의 게시글을 볼 수 없게 됩니다.
+                </div>
+                <form id="rcForm">
+                    <div class="form-group">
+                        <label for="newRC">새 RC</label>
+                        <select id="newRC">
+                            <option value="">RC를 선택하세요</option>
+                            <option value="토레이 College">토레이 College</option>
+                            <option value="손양원 College">손양원 College</option>
+                            <option value="카이퍼 College">카이퍼 College (열송학사)</option>
+                            <option value="장기려 College">장기려 College</option>
+                            <option value="카마이클 College">카마이클 College</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn">RC 변경</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+
+        window.onload = function() {
+            const userStr = localStorage.getItem('user');
+            if (!userStr) {
+                alert('로그인이 필요합니다.');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            currentUser = JSON.parse(userStr);
+
+            if (!currentUser.nickname || !currentUser.rc) {
+                alert('먼저 프로필을 설정해주세요.');
+                window.location.href = 'nickname.html';
+                return;
+            }
+
+            // 현재 정보 표시
+            document.getElementById('userInfo').textContent = currentUser.nickname;
+            document.getElementById('currentNickname').textContent = currentUser.nickname;
+            document.getElementById('currentRC').textContent = currentUser.rc;
+        };
+
+        function logout() {
+            if (confirm('로그아웃 하시겠습니까?')) {
+                localStorage.removeItem('user');
+                window.location.href = 'index.html';
+            }
+        }
+
+        // 닉네임 변경
+        document.getElementById('nicknameForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const newNickname = document.getElementById('newNickname').value.trim();
+
+            if (!newNickname) {
+                showMessage('새 닉네임을 입력해주세요.', 'error');
+                return;
+            }
+
+            if (newNickname === currentUser.nickname) {
+                showMessage('현재 닉네임과 동일합니다.', 'error');
+                return;
+            }
+
+            if (!confirm(`정말 닉네임을 "${newNickname}"(으)로 변경하시겠습니까?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/update-nickname', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userId: currentUser.id,
+                        nickname: newNickname
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    currentUser.nickname = newNickname;
+                    localStorage.setItem('user', JSON.stringify(currentUser));
+
+                    document.getElementById('currentNickname').textContent = newNickname;
+                    document.getElementById('userInfo').textContent = newNickname;
+                    document.getElementById('newNickname').value = '';
+
+                    showMessage('닉네임이 변경되었습니다!', 'success');
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('서버 오류가 발생했습니다.', 'error');
+            }
+        });
+
+        // RC 변경
+        document.getElementById('rcForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const newRC = document.getElementById('newRC').value;
+
+            if (!newRC) {
+                showMessage('새 RC를 선택해주세요.', 'error');
+                return;
+            }
+
+            if (newRC === currentUser.rc) {
+                showMessage('현재 RC와 동일합니다.', 'error');
+                return;
+            }
+
+            if (!confirm(`정말 RC를 "${newRC}"(으)로 변경하시겠습니까?\n\n⚠️ 변경 후 이전 RC의 게시글을 볼 수 없게 됩니다.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/update-rc', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userId: currentUser.id,
+                        rc: newRC
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    currentUser.rc = newRC;
+                    localStorage.setItem('user', JSON.stringify(currentUser));
+
+                    document.getElementById('currentRC').textContent = newRC;
+                    document.getElementById('newRC').value = '';
+
+                    showMessage('RC가 변경되었습니다!', 'success');
+
+                    setTimeout(() => {
+                        window.location.href = 'home.html';
+                    }, 1500);
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('서버 오류가 발생했습니다.', 'error');
+            }
+        });
+
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = message;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
