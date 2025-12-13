@@ -153,6 +153,76 @@
             margin-top: 15px;
         }
 
+        /* 최근 게시글 슬라이더 */
+        .posts-slider-section {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+        }
+
+        .posts-slider-section h2 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .slider-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+            background: #f9f9f9;
+            min-height: 200px;
+        }
+
+        .slide {
+            display: none;
+            padding: 30px;
+            animation: fadeIn 0.5s;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .slide-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+
+        .slide-title:hover {
+            color: #667eea;
+        }
+
+        .slide-meta {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 15px;
+        }
+
+        .slide-content {
+            font-size: 15px;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .no-posts-message {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-size: 15px;
+        }
+
         .features-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -222,13 +292,13 @@
     <!-- 네비게이션 바 -->
     <nav class="navbar">
         <div class="navbar-content">
-            <div class="navbar-brand">🎂 Birthday Handong</div>
+            <div class="navbar-brand">🌱 Sprout Handong</div>
 
             <ul class="navbar-menu">
                 <li><a href="home.html" data-en="Home"><span class="menu-text">홈</span></a></li>
-                <li><a href="birthday-board.html" data-en="Birthday Wishes"><span class="menu-text">생일 축하방</span></a></li>
-                <li><a href="calendar.html" data-en="Calendar"><span class="menu-text">생일 달력</span></a></li>
-                <li><a href="album.html" data-en="Album"><span class="menu-text">생일 앨범</span></a></li>
+                <li><a href="calendar.html" data-en="Memory Calendar"><span class="menu-text">추억 달력</span></a></li>
+                <li><a href="album.html" data-en="Album"><span class="menu-text">앨범</span></a></li>
+                <li><a href="birthday-board.html" data-en="Board"><span class="menu-text">게시판</span></a></li>
             </ul>
 
             <div class="navbar-user">
@@ -245,6 +315,14 @@
             <h1>환영합니다! 🎉</h1>
             <p id="welcomeMsg"></p>
             <div class="rc-badge" id="rcBadge"></div>
+        </div>
+
+        <!-- 최근 게시글 슬라이더 -->
+        <div class="posts-slider-section">
+            <h2>📋 최근 게시글</h2>
+            <div class="slider-container" id="postsSlider">
+                <div class="no-posts-message">게시글을 불러오는 중...</div>
+            </div>
         </div>
 
         <div class="features-grid">
@@ -291,8 +369,11 @@
             // 사용자 정보 표시
             document.getElementById('userInfo').textContent = `${currentUser.nickname}님`;
             document.getElementById('welcomeMsg').textContent =
-                `${currentUser.nickname}님, Birthday Handong에 오신 것을 환영합니다!`;
+                `${currentUser.nickname}님, Sprout Handong에 오신 것을 환영합니다!`;
             document.getElementById('rcBadge').textContent = currentUser.rc;
+
+            // 게시글 슬라이더 로드
+            loadPostsSlider();
         };
 
         function logout() {
@@ -300,6 +381,74 @@
                 localStorage.removeItem('user');
                 window.location.href = 'index.html';
             }
+        }
+
+        // 게시글 슬라이더
+        let currentSlide = 0;
+        let slides = [];
+        let sliderInterval = null;
+
+        async function loadPostsSlider() {
+            try {
+                const response = await fetch(`/api/posts?rc=${encodeURIComponent(currentUser.rc)}`);
+                const data = await response.json();
+
+                if (data.success && data.posts.length > 0) {
+                    slides = data.posts.slice(0, 5); // 최근 5개만
+                    renderSlider();
+                    startSlider();
+                } else {
+                    document.getElementById('postsSlider').innerHTML =
+                        '<div class="no-posts-message">아직 게시글이 없습니다.<br>게시판에서 첫 번째 글을 작성해보세요! ✍️</div>';
+                }
+            } catch (error) {
+                console.error('게시글 로드 실패:', error);
+                document.getElementById('postsSlider').innerHTML =
+                    '<div class="no-posts-message">게시글을 불러올 수 없습니다.</div>';
+            }
+        }
+
+        function renderSlider() {
+            const sliderContainer = document.getElementById('postsSlider');
+            sliderContainer.innerHTML = slides.map((post, index) => `
+                <div class="slide ${index === 0 ? 'active' : ''}" data-index="${index}">
+                    <div class="slide-title" onclick="location.href='birthday-board.html'">${escapeHtml(post.title)}</div>
+                    <div class="slide-meta">작성자: ${escapeHtml(post.author)} | ${formatDate(post.createdAt)}</div>
+                    <div class="slide-content">${escapeHtml(post.content.substring(0, 200))}${post.content.length > 200 ? '...' : ''}</div>
+                </div>
+            `).join('');
+        }
+
+        function startSlider() {
+            if (slides.length <= 1) return;
+
+            sliderInterval = setInterval(() => {
+                nextSlide();
+            }, 3000);
+        }
+
+        function nextSlide() {
+            const slideElements = document.querySelectorAll('.slide');
+            slideElements[currentSlide].classList.remove('active');
+
+            currentSlide = (currentSlide + 1) % slides.length;
+            slideElements[currentSlide].classList.add('active');
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day} ${hours}:${minutes}`;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
     </script>
 </body>

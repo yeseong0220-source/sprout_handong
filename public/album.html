@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>생일 앨범 - Birthday Handong</title>
+    <title>앨범 - Sprout Handong</title>
     <style>
         * {
             margin: 0;
@@ -12,16 +12,19 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f5f5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #F5F7FA;
             min-height: 100vh;
         }
 
+        /* 네비게이션 바 */
         .navbar {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 0;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
         .navbar-content {
@@ -80,41 +83,313 @@
             background: rgba(255, 255, 255, 0.3);
         }
 
+        /* 메인 컨텐츠 */
         .container {
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 0 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
         }
 
-        .coming-soon {
+        .content-wrapper {
             background: white;
-            padding: 100px 40px;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
             text-align: center;
         }
 
-        .coming-soon h1 {
-            font-size: 48px;
-            color: #333;
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .controls {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
             margin-bottom: 20px;
         }
 
-        .coming-soon p {
-            font-size: 18px;
-            color: #666;
+        .input-group {
+            display: flex;
+            gap: 10px;
+            flex: 1;
+            min-width: 300px;
+        }
+
+        input[type="text"], select {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .upload-area {
+            border: 3px dashed #dee2e6;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: #f8f9ff;
+            transform: scale(1.02);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .categories {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .category-tag {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 25px;
+            transition: all 0.3s;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .category-tag > span:only-child {
+            cursor: pointer;
+        }
+
+        .category-tag > span:not(:only-child):first-child {
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .category-tag:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .category-tag.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .delete-category {
+            color: #dc3545;
+            font-size: 1.3em;
+            font-weight: bold;
+            line-height: 1;
+            cursor: pointer;
+            padding: 0 5px;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .delete-category:hover {
+            background: #dc3545;
+            color: white;
+        }
+
+        .gallery {
+            padding: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .photo-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .photo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .photo-info {
+            padding: 15px;
+        }
+
+        .photo-category {
+            display: inline-block;
+            padding: 5px 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            font-size: 0.85em;
+            margin-bottom: 8px;
+        }
+
+        .photo-date {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+
+        .delete-btn {
+            width: 100%;
+            padding: 10px;
+            background: #dc3545;
+            margin-top: 10px;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 10px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 40px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .empty-state svg {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .control-group {
+                flex-direction: column;
+            }
+
+            .input-group {
+                width: 100%;
+                min-width: auto;
+            }
+
+            .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 15px;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- 네비게이션 바 -->
     <nav class="navbar">
         <div class="navbar-content">
-            <div class="navbar-brand" onclick="location.href='home.html'">🎂 Birthday Handong</div>
+            <div class="navbar-brand" onclick="location.href='home.html'">🌱 Sprout Handong</div>
             <ul class="navbar-menu">
                 <li><a href="home.html">홈</a></li>
-                <li><a href="birthday-board.html">생일 축하방</a></li>
-                <li><a href="calendar.html">생일 달력</a></li>
-                <li><a href="album.html">생일 앨범</a></li>
+                <li><a href="calendar.html">추억 달력</a></li>
+                <li><a href="album.html">앨범</a></li>
+                <li><a href="birthday-board.html">게시판</a></li>
             </ul>
 
             <div class="navbar-user">
@@ -126,13 +401,44 @@
     </nav>
 
     <div class="container">
-        <div class="coming-soon">
-            <h1>📸 생일 앨범</h1>
-            <p>곧 제공될 예정입니다</p>
+        <div class="content-wrapper">
+            <div class="header">
+                <h1>📸 추억 앨범</h1>
+                <p>카테고리별로 사진을 업로드하고 공유해보세요</p>
+            </div>
+
+            <div class="controls">
+                <div class="control-group">
+                    <div class="input-group">
+                        <input type="text" id="newCategory" placeholder="새 카테고리 이름을 입력하세요">
+                        <button onclick="addCategory()">카테고리 추가</button>
+                    </div>
+                </div>
+
+                <div class="categories" id="categories">
+                    <div class="category-tag active" data-category="all">전체보기</div>
+                </div>
+
+                <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                    <h3>📤 사진 업로드</h3>
+                    <p>클릭하거나 드래그하여 사진을 업로드하세요</p>
+                    <input type="file" id="fileInput" accept="image/*" multiple onchange="handleFiles(this.files)">
+                </div>
+            </div>
+
+            <div class="gallery" id="gallery">
+                <div class="loading">사진을 불러오는 중...</div>
+            </div>
         </div>
     </div>
 
+    <div class="modal" id="modal" onclick="closeModal()">
+        <span class="modal-close">&times;</span>
+        <img id="modalImg" src="" alt="">
+    </div>
+
     <script>
+        // 로그인 체크
         window.onload = function() {
             const userStr = localStorage.getItem('user');
             if (!userStr) {
@@ -149,6 +455,9 @@
             }
 
             document.getElementById('userInfo').textContent = currentUser.nickname;
+
+            // 갤러리 초기화
+            init();
         };
 
         function logout() {
@@ -157,6 +466,235 @@
                 window.location.href = 'index.html';
             }
         }
+
+        // 갤러리 기능
+        let currentCategory = 'all';
+        let categories = [];
+        let photos = [];
+
+        // 페이지 로드 시 초기화
+        function init() {
+            loadCategories();
+            loadPhotos();
+            renderCategories();
+            renderGallery();
+        }
+
+        // 로컬 스토리지에서 카테고리 불러오기
+        function loadCategories() {
+            const saved = localStorage.getItem('gallery_categories');
+            categories = saved ? JSON.parse(saved) : [];
+        }
+
+        // 로컬 스토리지에서 사진 불러오기
+        function loadPhotos() {
+            const saved = localStorage.getItem('gallery_photos');
+            photos = saved ? JSON.parse(saved) : [];
+            photos.sort((a, b) => new Date(b.date) - new Date(a.date));
+        }
+
+        // 카테고리 저장
+        function saveCategories() {
+            localStorage.setItem('gallery_categories', JSON.stringify(categories));
+        }
+
+        // 사진 저장
+        function savePhotos() {
+            localStorage.setItem('gallery_photos', JSON.stringify(photos));
+        }
+
+        // 카테고리 추가
+        function addCategory() {
+            const input = document.getElementById('newCategory');
+            const name = input.value.trim();
+
+            if (!name) {
+                alert('카테고리 이름을 입력하세요');
+                return;
+            }
+
+            if (categories.includes(name)) {
+                alert('이미 존재하는 카테고리입니다');
+                return;
+            }
+
+            categories.push(name);
+            saveCategories();
+            input.value = '';
+            renderCategories();
+        }
+
+        // 카테고리 렌더링
+        function renderCategories() {
+            const container = document.getElementById('categories');
+            const allTag = document.createElement('div');
+            allTag.className = 'category-tag active';
+            allTag.dataset.category = 'all';
+            allTag.innerHTML = '<span onclick="selectCategory(\'all\')">전체보기</span>';
+            container.innerHTML = '';
+            container.appendChild(allTag);
+
+            categories.forEach(cat => {
+                const tag = document.createElement('div');
+                tag.className = 'category-tag';
+                tag.dataset.category = cat;
+                tag.innerHTML = `
+                    <span onclick="selectCategory('${cat}')">${cat}</span>
+                    <span class="delete-category" onclick="deleteCategory('${cat}')" title="카테고리 삭제">×</span>
+                `;
+                container.appendChild(tag);
+            });
+        }
+
+        // 카테고리 삭제
+        function deleteCategory(categoryName) {
+            const photosInCategory = photos.filter(p => p.category === categoryName);
+
+            let message = `"${categoryName}" 카테고리를 삭제하시겠습니까?`;
+            if (photosInCategory.length > 0) {
+                message += `\n\n⚠️ 이 카테고리에 ${photosInCategory.length}개의 사진이 있습니다.\n카테고리를 삭제하면 사진도 함께 삭제됩니다.`;
+            }
+
+            if (!confirm(message)) return;
+
+            // 카테고리 제거
+            categories = categories.filter(c => c !== categoryName);
+            saveCategories();
+
+            // 해당 카테고리의 사진들 삭제
+            photos = photos.filter(p => p.category !== categoryName);
+            savePhotos();
+
+            // 삭제된 카테고리가 현재 선택된 경우 전체보기로 변경
+            if (currentCategory === categoryName) {
+                selectCategory('all');
+            }
+
+            renderCategories();
+            renderGallery();
+        }
+
+        // 카테고리 선택
+        function selectCategory(category) {
+            currentCategory = category;
+            document.querySelectorAll('.category-tag').forEach(tag => {
+                tag.classList.toggle('active', tag.dataset.category === category);
+            });
+            renderGallery();
+        }
+
+        // 파일 처리
+        function handleFiles(files) {
+            if (!categories.length) {
+                alert('먼저 카테고리를 추가해주세요!');
+                return;
+            }
+
+            const category = prompt(`카테고리를 선택하세요:\n${categories.join(', ')}`);
+            if (!category || !categories.includes(category)) {
+                alert('유효한 카테고리를 선택해주세요');
+                return;
+            }
+
+            Array.from(files).forEach(file => {
+                if (!file.type.startsWith('image/')) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const photo = {
+                        id: Date.now() + Math.random(),
+                        category: category,
+                        data: e.target.result,
+                        date: new Date().toISOString()
+                    };
+
+                    photos.unshift(photo);
+                    savePhotos();
+                    renderGallery();
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // 갤러리 렌더링
+        function renderGallery() {
+            const gallery = document.getElementById('gallery');
+            const filteredPhotos = currentCategory === 'all'
+                ? photos
+                : photos.filter(p => p.category === currentCategory);
+
+            if (!filteredPhotos.length) {
+                gallery.innerHTML = `
+                    <div class="empty-state">
+                        <svg fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+                        </svg>
+                        <h3>아직 사진이 없습니다</h3>
+                        <p>첫 번째 사진을 업로드해보세요!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            gallery.innerHTML = '';
+            filteredPhotos.forEach(photo => {
+                const card = document.createElement('div');
+                card.className = 'photo-card';
+
+                const date = new Date(photo.date).toLocaleDateString('ko-KR');
+
+                card.innerHTML = `
+                    <img src="${photo.data}" alt="사진" onclick="openModal('${photo.data}')">
+                    <div class="photo-info">
+                        <div class="photo-category">${photo.category}</div>
+                        <div class="photo-date">${date}</div>
+                        <button class="delete-btn" onclick="deletePhoto('${photo.id}')">삭제</button>
+                    </div>
+                `;
+
+                gallery.appendChild(card);
+            });
+        }
+
+        // 사진 삭제
+        function deletePhoto(id) {
+            if (!confirm('이 사진을 삭제하시겠습니까?')) return;
+
+            photos = photos.filter(p => p.id != id);
+            savePhotos();
+            renderGallery();
+        }
+
+        // 모달 열기
+        function openModal(src) {
+            const modal = document.getElementById('modal');
+            const img = document.getElementById('modalImg');
+            img.src = src;
+            modal.classList.add('active');
+        }
+
+        // 모달 닫기
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        // 드래그 앤 드롭
+        const uploadArea = document.getElementById('uploadArea');
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
     </script>
 </body>
 </html>

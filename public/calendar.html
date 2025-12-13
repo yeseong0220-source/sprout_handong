@@ -1,162 +1,672 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>생일 달력 - Birthday Handong</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>추억 달력 - Sprout Handong</title>
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f5f5;
-            min-height: 100vh;
-        }
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap"
+    rel="stylesheet">
 
-        .navbar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
+  <style>
+    :root {
+      --bg-app: #F5F7FA;
+      --bg-card: #FFFFFF;
+      --border: #E6E6E6;
+      --text-main: #292D34;
+      --text-muted: #7C828D;
+      --accent: #7B68EE;
+      --accent-hover: #6C5CE7;
+      --danger: #FF5252;
+      --tag-bg: #F0EBFA;
+      --tag-text: #5A43CB;
+    }
 
-        .navbar-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 20px;
-        }
+    * { box-sizing: border-box; outline: none; margin: 0; padding: 0; }
 
-        .navbar-brand {
-            font-size: 24px;
-            font-weight: 700;
-            padding: 20px 0;
-            cursor: pointer;
-        }
+    body {
+      font-family: 'Inter', 'Noto Sans KR', sans-serif;
+      color: var(--text-main);
+      background: var(--bg-app);
+      min-height: 100vh;
+    }
 
-        .navbar-menu {
-            display: flex;
-            list-style: none;
-            gap: 0;
-        }
+    /* 네비게이션 바 */
+    .navbar {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
 
-        .navbar-menu a {
-            color: white;
-            text-decoration: none;
-            padding: 20px 25px;
-            display: block;
-            transition: background 0.3s;
-        }
+    .navbar-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+    }
 
-        .navbar-menu a:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
+    .navbar-brand {
+      font-size: 24px;
+      font-weight: 700;
+      padding: 20px 0;
+      cursor: pointer;
+    }
 
-        .navbar-user {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+    .navbar-menu {
+      display: flex;
+      list-style: none;
+      gap: 0;
+    }
 
-        .settings-btn, .logout-btn {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid white;
-            padding: 8px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s;
-            font-size: 14px;
-            text-decoration: none;
-        }
+    .navbar-menu a {
+      color: white;
+      text-decoration: none;
+      padding: 20px 25px;
+      display: block;
+      transition: background 0.3s;
+    }
 
-        .settings-btn:hover, .logout-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
+    .navbar-menu a:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
 
-        .container {
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
+    .navbar-user {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
 
-        .coming-soon {
-            background: white;
-            padding: 100px 40px;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
+    .settings-btn, .logout-btn {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 1px solid white;
+      padding: 8px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+      font-size: 14px;
+      text-decoration: none;
+    }
 
-        .coming-soon h1 {
-            font-size: 48px;
-            color: #333;
-            margin-bottom: 20px;
-        }
+    .settings-btn:hover, .logout-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
 
-        .coming-soon p {
-            font-size: 18px;
-            color: #666;
-        }
-    </style>
+    /* 메인 컨텐츠 */
+    .page-wrapper {
+      display: flex;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    @media (min-width: 768px) {
+      .container { grid-template-columns: 340px 1fr; }
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+      display: flex;
+      flex-direction: column;
+    }
+
+    h2 {
+      margin: 0 0 20px;
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    h2::before {
+      content: "";
+      margin-top: 2px;
+      width: 6px;
+      height: 18px;
+      background: var(--accent);
+      border-radius: 3px;
+      display: block;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    input {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 14px;
+      font-family: inherit;
+      background: #FAFAFA;
+      color: var(--text-main);
+      transition: all 0.2s;
+    }
+
+    input:focus {
+      background: white;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(123, 104, 238, 0.15);
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+
+    button.primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    button.primary:hover {
+      background: var(--accent-hover);
+      box-shadow: 0 4px 10px rgba(123, 104, 238, 0.3);
+    }
+
+    button.ghost {
+      background: transparent;
+      color: var(--text-muted);
+    }
+
+    button.ghost:hover {
+      background: #F5F5F5;
+      color: var(--text-main);
+    }
+
+    .list-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .empty-state {
+      padding: 40px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 14px;
+      background: #FAFAFA;
+      border-radius: 8px;
+      border: 1px dashed var(--border);
+    }
+
+    .item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+      border-color: #D1D1D1;
+    }
+
+    .item-left { display: flex; flex-direction: column; gap: 4px; }
+
+    .item-name {
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text-main);
+    }
+
+    .item-date {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .d-badge {
+      background: var(--tag-bg);
+      color: var(--tag-text);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 6px;
+      min-width: 44px;
+      text-align: center;
+    }
+
+    .d-today {
+      background: #FFE4E4;
+      color: #D63031;
+    }
+
+    .del-btn {
+      opacity: 0;
+      padding: 6px;
+      margin-left: 12px;
+      color: #CCC;
+      font-size: 16px;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .item:hover .del-btn { opacity: 1; }
+
+    .del-btn:hover {
+      color: var(--danger);
+      background: #FFF0F0;
+      border-radius: 4px;
+    }
+
+    /* 캘린더 스타일 */
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      font-size: 11px;
+    }
+
+    .cal-day-name {
+      text-align: center;
+      padding: 4px 0;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .cal-cell {
+      min-height: 40px;
+      background: #F8F8FF;
+      border-radius: 6px;
+      padding: 4px;
+      position: relative;
+      border: 1px solid #E4E4FF;
+    }
+
+    .cal-empty {
+      background: transparent;
+      border: none;
+    }
+
+    .cal-date {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .cal-has {
+      background: #EDE7FF;
+      border-color: #C9B6FF;
+    }
+
+    .cal-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent);
+      position: absolute;
+      bottom: 4px;
+      right: 4px;
+    }
+
+    .cal-today {
+      outline: 2px solid #FFB5B5;
+      outline-offset: 1px;
+    }
+  </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="navbar-content">
-            <div class="navbar-brand" onclick="location.href='home.html'">🎂 Birthday Handong</div>
-            <ul class="navbar-menu">
-                <li><a href="home.html">홈</a></li>
-                <li><a href="birthday-board.html">생일 축하방</a></li>
-                <li><a href="calendar.html">생일 달력</a></li>
-                <li><a href="album.html">생일 앨범</a></li>
-            </ul>
+  <!-- 네비게이션 바 -->
+  <nav class="navbar">
+    <div class="navbar-content">
+      <div class="navbar-brand" onclick="location.href='home.html'">🌱 Sprout Handong</div>
+      <ul class="navbar-menu">
+        <li><a href="home.html">홈</a></li>
+        <li><a href="calendar.html">추억 달력</a></li>
+        <li><a href="album.html">앨범</a></li>
+        <li><a href="birthday-board.html">게시판</a></li>
+      </ul>
 
-            <div class="navbar-user">
-                <span id="userInfo"></span>
-                <a href="settings.html" class="settings-btn">설정</a>
-                <button class="logout-btn" onclick="logout()">로그아웃</button>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container">
-        <div class="coming-soon">
-            <h1>📅 생일 달력</h1>
-            <p>곧 제공될 예정입니다</p>
-        </div>
+      <div class="navbar-user">
+        <span id="userInfo"></span>
+        <a href="settings.html" class="settings-btn">설정</a>
+        <button class="logout-btn" onclick="logout()">로그아웃</button>
+      </div>
     </div>
+  </nav>
 
-    <script>
-        window.onload = function() {
-            const userStr = localStorage.getItem('user');
-            if (!userStr) {
-                alert('로그인이 필요합니다.');
-                window.location.href = 'index.html';
-                return;
-            }
+  <div class="page-wrapper">
+    <div class="container">
+      <!-- Left: Add Form -->
+      <div class="card" style="height: max-content;">
+        <h2>새 기념일 추가</h2>
+        <div style="margin-bottom: 16px;">
+          <label>이름</label>
+          <input id="inName" placeholder="예: 새내기 생일, 100일 기념일..." />
+        </div>
+        <div style="margin-bottom: 24px;">
+          <label>날짜</label>
+          <input id="inDate" type="date" />
+        </div>
+        <button id="addBtn" class="primary" style="width:100%">리스트에 추가하기</button>
+        <div style="margin-top:12px; text-align:center; font-size:11px; color:var(--text-muted);">
+          입력한 정보는 브라우저에 자동 저장돼요.
+        </div>
+      </div>
 
-            const currentUser = JSON.parse(userStr);
-            if (!currentUser.nickname || !currentUser.rc) {
-                alert('먼저 프로필을 설정해주세요.');
-                window.location.href = 'nickname.html';
-                return;
-            }
+      <!-- Right: List + Calendar -->
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+          <h2 style="margin:0;">다가오는 기념일</h2>
+          <span id="countBadge"
+            style="font-size:11px; font-weight:600; color:var(--text-muted); background:#F5F5F5; padding:4px 8px; border-radius:99px;">0개</span>
+        </div>
 
-            document.getElementById('userInfo').textContent = currentUser.nickname;
-        };
+        <div id="listWrap" class="list-wrapper">
+          <div class="empty-state">
+            아직 등록된 기념일이 없어요.<br>
+            왼쪽에서 새로운 일정을 추가해보세요! ✨
+          </div>
+        </div>
 
-        function logout() {
-            if (confirm('로그아웃 하시겠습니까?')) {
-                localStorage.removeItem('user');
-                window.location.href = 'index.html';
-            }
+        <div style="margin-top:24px; border-top:1px solid #eee; padding-top:16px;">
+          <h2 style="margin-bottom:12px;">이번 달 캘린더</h2>
+          <div id="calendar"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 로그인 체크
+    window.onload = function() {
+        const userStr = localStorage.getItem('user');
+        if (!userStr) {
+            alert('로그인이 필요합니다.');
+            window.location.href = 'index.html';
+            return;
         }
-    </script>
+
+        const currentUser = JSON.parse(userStr);
+        if (!currentUser.nickname || !currentUser.rc) {
+            alert('먼저 프로필을 설정해주세요.');
+            window.location.href = 'nickname.html';
+            return;
+        }
+
+        document.getElementById('userInfo').textContent = currentUser.nickname;
+
+        // 기념일 기능 초기화
+        loadItems();
+    };
+
+    function logout() {
+        if (confirm('로그아웃 하시겠습니까?')) {
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+    }
+
+    // 기념일 기능
+    const STORAGE_KEY = "handong_anniv_v1";
+
+    let items = [];
+
+    // 현재 보고 있는 연/월
+    let currentYear = new Date().getFullYear();
+    let currentMonth = new Date().getMonth(); // 0~11
+
+    const $inName = document.getElementById("inName");
+    const $inDate = document.getElementById("inDate");
+    const $addBtn = document.getElementById("addBtn");
+    const $listWrap = document.getElementById("listWrap");
+    const $countBadge = document.getElementById("countBadge");
+    const $calendar = document.getElementById("calendar");
+
+    const loadItems = () => {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try { items = JSON.parse(saved); } catch (e) { }
+      }
+      render();
+    };
+
+    const saveItems = () => {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      render();
+    };
+
+    const addItem = () => {
+      const name = $inName.value.trim();
+      const date = $inDate.value;
+      if (!name || !date) {
+        alert("이름과 날짜를 모두 입력해주세요!");
+        return;
+      }
+
+      items.push({
+        id: Date.now().toString(),
+        name,
+        date,
+        createdAt: Date.now()
+      });
+
+      $inName.value = "";
+      $inDate.value = "";
+      saveItems();
+    };
+
+    const deleteItem = (id) => {
+      if (confirm("정말 삭제할까요?")) {
+        items = items.filter(x => String(x.id) !== String(id));
+        saveItems();
+      }
+    };
+
+    const getDday = (targetDateStr) => {
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+      const target = new Date(targetDateStr);
+      target.setHours(0, 0, 0, 0);
+      const diff = target - now;
+      const dayDiff = Math.ceil(diff / (1000 * 60 * 60 * 24));
+      return dayDiff;
+    };
+
+    const renderList = () => {
+      $listWrap.innerHTML = "";
+      $countBadge.textContent = `${items.length}개`;
+
+      if (items.length === 0) {
+        $listWrap.innerHTML = `
+          <div class="empty-state">
+             아직 등록된 기념일이 없어요.<br>
+             왼쪽에서 새로운 일정을 추가해보세요! ✨
+          </div>`;
+        return;
+      }
+
+      const list = items.map(item => {
+        const d = getDday(item.date);
+        return { ...item, dDay: d };
+      });
+
+      list.sort((a, b) => a.dDay - b.dDay);
+
+      list.forEach(item => {
+        const el = document.createElement("div");
+        el.className = "item";
+
+        let badgeText = "";
+        let badgeClass = "d-badge";
+
+        if (item.dDay === 0) {
+          badgeText = "Today";
+          badgeClass += " d-today";
+        } else if (item.dDay > 0) {
+          badgeText = `D-${item.dDay}`;
+        } else {
+          badgeText = `D+${Math.abs(item.dDay)}`;
+        }
+
+        const dateStr = item.date;
+
+        el.innerHTML = `
+          <div class="item-left">
+            <div class="item-name">${item.name}</div>
+            <div class="item-date">
+               <span style="opacity:0.6">📅</span> ${dateStr}
+            </div>
+          </div>
+          <div style="display:flex; align-items:center;">
+            <div class="${badgeClass}">${badgeText}</div>
+            <button class="del-btn" type="button" title="삭제" data-id="${item.id}">✕</button>
+          </div>
+        `;
+
+        $listWrap.appendChild(el);
+      });
+    };
+
+    const renderCalendar = () => {
+      const year = currentYear;
+      const month = currentMonth;
+
+      const now = new Date();
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+
+      const startWeekday = firstDay.getDay(); // 0=일
+      const daysInMonth = lastDay.getDate();
+
+      const monthStr = `${year}년 ${month + 1}월`;
+
+      const dayMap = new Set();
+      items.forEach(it => {
+        const d = new Date(it.date);
+        if (d.getFullYear() === year && d.getMonth() === month) {
+          dayMap.add(d.getDate());
+        }
+      });
+
+      let html = `
+        <div class="calendar-header">
+          <button id="prevMonth" class="ghost" style="padding:4px 8px;font-size:12px;">◀</button>
+          <span>${monthStr}</span>
+          <button id="nextMonth" class="ghost" style="padding:4px 8px;font-size:12px;">▶</button>
+        </div>
+        <div style="font-size:11px; color:var(--text-muted); margin-bottom:4px;">
+          ● 표시된 날에 기념일이 있어요
+        </div>
+        <div class="calendar-grid">
+      `;
+
+      const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
+      dayNames.forEach(name => {
+        html += `<div class="cal-day-name">${name}</div>`;
+      });
+
+      for (let i = 0; i < startWeekday; i++) {
+        html += `<div class="cal-cell cal-empty"></div>`;
+      }
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const isToday =
+          d === now.getDate() &&
+          year === now.getFullYear() &&
+          month === now.getMonth();
+
+        const hasEvent = dayMap.has(d);
+
+        let cellClass = "cal-cell";
+        if (hasEvent) cellClass += " cal-has";
+        if (isToday) cellClass += " cal-today";
+
+        html += `<div class="${cellClass}">
+          <div class="cal-date">${d}</div>
+          ${hasEvent ? '<div class="cal-dot"></div>' : ''}
+        </div>`;
+      }
+
+      html += `</div>`;
+      $calendar.innerHTML = html;
+
+      // 월 이동 버튼 이벤트
+      document.getElementById("prevMonth").onclick = () => {
+        if (currentMonth === 0) {
+          currentMonth = 11;
+          currentYear -= 1;
+        } else {
+          currentMonth -= 1;
+        }
+        renderCalendar();
+      };
+
+      document.getElementById("nextMonth").onclick = () => {
+        if (currentMonth === 11) {
+          currentMonth = 0;
+          currentYear += 1;
+        } else {
+          currentMonth += 1;
+        }
+        renderCalendar();
+      };
+    };
+
+    const render = () => {
+      renderList();
+      renderCalendar();
+    };
+
+    $addBtn.addEventListener("click", addItem);
+
+    $listWrap.addEventListener("click", (e) => {
+      if (e.target.classList.contains("del-btn")) {
+        const id = e.target.getAttribute("data-id");
+        deleteItem(id);
+      }
+    });
+  </script>
 </body>
 </html>

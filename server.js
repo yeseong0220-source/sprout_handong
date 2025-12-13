@@ -169,7 +169,26 @@ app.post('/api/update-rc', (req, res) => {
         return res.status(404).json({ success: false, message: '사용자를 찾을 수 없습니다.' });
     }
 
+    const user = users[userIndex];
+
+    // 24시간 쿨다운 체크
+    if (user.lastRcChange) {
+        const lastChangeTime = new Date(user.lastRcChange);
+        const currentTime = new Date();
+        const hoursDiff = (currentTime - lastChangeTime) / (1000 * 60 * 60);
+
+        if (hoursDiff < 24) {
+            const remainingHours = Math.ceil(24 - hoursDiff);
+            return res.status(400).json({
+                success: false,
+                message: `RC 변경은 24시간마다 한 번만 가능합니다. ${remainingHours}시간 후에 다시 시도해주세요.`
+            });
+        }
+    }
+
+    // RC 변경 및 시간 기록
     users[userIndex].rc = rc;
+    users[userIndex].lastRcChange = new Date().toISOString();
     writeUsers(users);
 
     res.json({ success: true, message: 'RC가 변경되었습니다.' });
