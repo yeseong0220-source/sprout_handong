@@ -372,6 +372,173 @@
             border: 1px solid #f5c6cb;
         }
 
+        /* 삼행시 섹션 */
+        .acrostic-section {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            margin-bottom: 30px;
+        }
+
+        .acrostic-section h2 {
+            color: #2d3436;
+            margin-bottom: 20px;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .acrostic-form {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+
+        .acrostic-name-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #fdcb6e;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .acrostic-lines {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .acrostic-line-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .acrostic-char {
+            background: #fdcb6e;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .acrostic-line-input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .acrostic-line-input:focus {
+            outline: none;
+            border-color: #fdcb6e;
+        }
+
+        .acrostic-visibility {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .acrostic-submit-btn {
+            background: linear-gradient(135deg, #ff7675 0%, #d63031 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .acrostic-submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(214, 48, 49, 0.3);
+        }
+
+        .acrostic-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .acrostic-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+
+        .acrostic-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .acrostic-card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2d3436;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .acrostic-card-lines {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .acrostic-card-line {
+            font-size: 14px;
+            color: #636e72;
+            line-height: 1.6;
+        }
+
+        .acrostic-card-meta {
+            font-size: 12px;
+            color: #999;
+            text-align: right;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .acrostic-visibility-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .acrostic-visibility-badge.public {
+            background: #00b894;
+            color: white;
+        }
+
+        .acrostic-visibility-badge.private {
+            background: #636e72;
+            color: white;
+        }
+
         /* 반응형 */
         @media (max-width: 768px) {
             .navbar-content {
@@ -397,6 +564,10 @@
 
             .heart-btn {
                 margin-top: 10px;
+            }
+
+            .acrostic-list {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -424,6 +595,23 @@
 
     <!-- 메인 컨텐츠 -->
     <div class="container">
+        <!-- 삼행시 특별 섹션 -->
+        <div class="acrostic-section">
+            <h2>✨ 삼행시 특별칸 ✨</h2>
+
+            <div class="acrostic-form">
+                <input type="text" id="acrosticName" class="acrostic-name-input" placeholder="이름을 입력하세요 (예: 민수)" maxlength="5">
+                <div id="acrosticLines" class="acrostic-lines"></div>
+                <div class="acrostic-visibility">
+                    <input type="checkbox" id="acrosticPublic" checked>
+                    <label for="acrosticPublic">공개 (홈 화면에 표시)</label>
+                </div>
+                <button id="acrosticSubmit" class="acrostic-submit-btn">삼행시 작성하기</button>
+            </div>
+
+            <div id="acrosticList" class="acrostic-list"></div>
+        </div>
+
         <!-- 글 작성 섹션 -->
         <div class="write-section">
             <h2>🎉 생일 축하 메시지 작성</h2>
@@ -484,6 +672,8 @@
             document.getElementById('userInfo').textContent = `${currentUser.nickname} (${currentUser.rc})`;
 
             loadPosts();
+            loadAcrostics();
+            setupAcrosticInput();
         };
 
         // 로그아웃
@@ -661,6 +851,134 @@
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
+        }
+
+        // 삼행시 입력 필드 동적 생성
+        function setupAcrosticInput() {
+            const nameInput = document.getElementById('acrosticName');
+            const linesDiv = document.getElementById('acrosticLines');
+
+            nameInput.addEventListener('input', () => {
+                const name = nameInput.value.trim();
+                linesDiv.innerHTML = '';
+
+                if (name.length === 0) return;
+
+                for (let i = 0; i < name.length; i++) {
+                    const lineGroup = document.createElement('div');
+                    lineGroup.className = 'acrostic-line-group';
+                    lineGroup.innerHTML = `
+                        <div class="acrostic-char">${name[i]}</div>
+                        <input type="text" class="acrostic-line-input" data-index="${i}" placeholder="${name[i]}로 시작하는 문장을 입력하세요">
+                    `;
+                    linesDiv.appendChild(lineGroup);
+                }
+            });
+
+            document.getElementById('acrosticSubmit').addEventListener('click', submitAcrostic);
+        }
+
+        // 삼행시 작성
+        async function submitAcrostic() {
+            const name = document.getElementById('acrosticName').value.trim();
+            const isPublic = document.getElementById('acrosticPublic').checked;
+
+            if (!name) {
+                alert('이름을 입력해주세요!');
+                return;
+            }
+
+            const lineInputs = document.querySelectorAll('.acrostic-line-input');
+            if (lineInputs.length === 0) {
+                alert('이름을 입력해주세요!');
+                return;
+            }
+
+            const lines = [];
+            for (let input of lineInputs) {
+                const line = input.value.trim();
+                if (!line) {
+                    alert('모든 줄을 작성해주세요!');
+                    return;
+                }
+                lines.push(line);
+            }
+
+            try {
+                const response = await fetch('/api/acrostics', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name,
+                        lines,
+                        author: currentUser.nickname,
+                        authorId: currentUser.id,
+                        rc: currentUser.rc,
+                        isPublic
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('삼행시가 작성되었습니다! 🎉');
+                    document.getElementById('acrosticName').value = '';
+                    document.getElementById('acrosticLines').innerHTML = '';
+                    document.getElementById('acrosticPublic').checked = true;
+                    loadAcrostics();
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                alert('서버 오류가 발생했습니다.');
+            }
+        }
+
+        // 삼행시 목록 로드
+        async function loadAcrostics() {
+            try {
+                const response = await fetch(`/api/acrostics?rc=${encodeURIComponent(currentUser.rc)}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    displayAcrostics(data.acrostics);
+                }
+            } catch (error) {
+                console.error('삼행시 로드 실패:', error);
+            }
+        }
+
+        // 삼행시 목록 표시
+        function displayAcrostics(acrostics) {
+            const listDiv = document.getElementById('acrosticList');
+
+            if (acrostics.length === 0) {
+                listDiv.innerHTML = '<div style="text-align:center; padding:40px; color:#999; grid-column: 1/-1;">아직 작성된 삼행시가 없습니다.<br>첫 번째 삼행시를 작성해보세요! ✨</div>';
+                return;
+            }
+
+            listDiv.innerHTML = acrostics.map(acrostic => `
+                <div class="acrostic-card">
+                    <div class="acrostic-card-title">
+                        ${escapeHtml(acrostic.name)}
+                        <span class="acrostic-visibility-badge ${acrostic.isPublic ? 'public' : 'private'}">
+                            ${acrostic.isPublic ? '공개' : '비공개'}
+                        </span>
+                    </div>
+                    <div class="acrostic-card-lines">
+                        ${acrostic.lines.map((line, idx) => `
+                            <div class="acrostic-card-line">
+                                <strong>${escapeHtml(acrostic.name[idx])}</strong> ${escapeHtml(line)}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="acrostic-card-meta">
+                        작성자: ${escapeHtml(acrostic.author)} | ${formatDate(acrostic.createdAt)}
+                    </div>
+                </div>
+            `).join('');
         }
     </script>
 </body>

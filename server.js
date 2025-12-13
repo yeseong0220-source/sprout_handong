@@ -14,6 +14,7 @@ app.use(express.static('public'));
 // 데이터 파일 경로
 const USERS_FILE = path.join(__dirname, 'data', 'users.json');
 const POSTS_FILE = path.join(__dirname, 'data', 'posts.json');
+const ACROSTICS_FILE = path.join(__dirname, 'data', 'acrostics.json');
 
 // 데이터 파일 초기화
 function initDataFiles() {
@@ -22,6 +23,9 @@ function initDataFiles() {
     }
     if (!fs.existsSync(POSTS_FILE)) {
         fs.writeFileSync(POSTS_FILE, JSON.stringify([], null, 2));
+    }
+    if (!fs.existsSync(ACROSTICS_FILE)) {
+        fs.writeFileSync(ACROSTICS_FILE, JSON.stringify([], null, 2));
     }
 }
 
@@ -36,6 +40,11 @@ function readPosts() {
     return JSON.parse(data);
 }
 
+function readAcrostics() {
+    const data = fs.readFileSync(ACROSTICS_FILE, 'utf8');
+    return JSON.parse(data);
+}
+
 // 데이터 쓰기 함수
 function writeUsers(users) {
     fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
@@ -43,6 +52,10 @@ function writeUsers(users) {
 
 function writePosts(posts) {
     fs.writeFileSync(POSTS_FILE, JSON.stringify(posts, null, 2));
+}
+
+function writeAcrostics(acrostics) {
+    fs.writeFileSync(ACROSTICS_FILE, JSON.stringify(acrostics, null, 2));
 }
 
 // 회원가입 API
@@ -320,6 +333,64 @@ app.post('/api/posts/like', (req, res) => {
         posts[postIndex].likes = posts[postIndex].likedBy.length;
         writePosts(posts);
         res.json({ success: true, message: '좋아요!', liked: true });
+    }
+});
+
+// 삼행시 작성 API
+app.post('/api/acrostics', (req, res) => {
+    const { name, lines, author, authorId, rc, isPublic } = req.body;
+
+    if (!name || !lines || !author || !authorId || !rc) {
+        return res.status(400).json({ success: false, message: '모든 정보를 입력해주세요.' });
+    }
+
+    const acrostics = readAcrostics();
+    const newAcrostic = {
+        id: Date.now(),
+        name,
+        lines,
+        author,
+        authorId,
+        rc,
+        isPublic: isPublic !== false, // 기본값 true
+        createdAt: new Date().toISOString()
+    };
+
+    acrostics.push(newAcrostic);
+    writeAcrostics(acrostics);
+
+    res.json({ success: true, message: '삼행시가 작성되었습니다!', acrostic: newAcrostic });
+});
+
+// 삼행시 목록 조회 API
+app.get('/api/acrostics', (req, res) => {
+    const { rc, publicOnly } = req.query;
+    let acrostics = readAcrostics();
+
+    // RC 필터링
+    if (rc) {
+        acrostics = acrostics.filter(acrostic => acrostic.rc === rc);
+    }
+
+    // 공개 삼행시만 필터링
+    if (publicOnly === 'true') {
+        acrostics = acrostics.filter(acrostic => acrostic.isPublic === true);
+    }
+
+    // 최신글이 위로 오도록 정렬
+    acrostics.sort((a, b) => b.id - a.id);
+    res.json({ success: true, acrostics });
+});
+
+// 삼행시 상세 조회 API
+app.get('/api/acrostics/:id', (req, res) => {
+    const acrostics = readAcrostics();
+    const acrostic = acrostics.find(a => a.id === parseInt(req.params.id));
+
+    if (acrostic) {
+        res.json({ success: true, acrostic });
+    } else {
+        res.status(404).json({ success: false, message: '삼행시를 찾을 수 없습니다.' });
     }
 });
 

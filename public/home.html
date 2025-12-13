@@ -223,6 +223,74 @@
             font-size: 15px;
         }
 
+        /* 삼행시 슬라이더 */
+        .acrostic-slider-section {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            margin-bottom: 40px;
+        }
+
+        .acrostic-slider-section h2 {
+            font-size: 28px;
+            color: #2d3436;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 800;
+        }
+
+        .acrostic-slide {
+            display: none;
+            padding: 30px;
+            background: white;
+            border-radius: 10px;
+            animation: fadeIn 0.5s;
+        }
+
+        .acrostic-slide.active {
+            display: block;
+        }
+
+        .acrostic-slide-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2d3436;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .acrostic-slide-lines {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .acrostic-slide-line {
+            font-size: 16px;
+            color: #636e72;
+            line-height: 1.8;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .acrostic-slide-line strong {
+            color: #fdcb6e;
+            font-size: 18px;
+            margin-right: 8px;
+        }
+
+        .acrostic-slide-meta {
+            font-size: 13px;
+            color: #999;
+            text-align: right;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #f0f0f0;
+        }
+
         .features-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -317,6 +385,14 @@
             <div class="rc-badge" id="rcBadge"></div>
         </div>
 
+        <!-- 삼행시 슬라이더 -->
+        <div class="acrostic-slider-section">
+            <h2>✨ 오늘의 삼행시 ✨</h2>
+            <div class="slider-container" id="acrosticSlider">
+                <div class="no-posts-message">삼행시를 불러오는 중...</div>
+            </div>
+        </div>
+
         <!-- 최근 게시글 슬라이더 -->
         <div class="posts-slider-section">
             <h2>📋 최근 게시글</h2>
@@ -374,6 +450,7 @@
 
             // 게시글 슬라이더 로드
             loadPostsSlider();
+            loadAcrosticSlider();
         };
 
         function logout() {
@@ -449,6 +526,64 @@
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
+        }
+
+        // 삼행시 슬라이더
+        let currentAcrosticSlide = 0;
+        let acrosticSlides = [];
+        let acrosticSliderInterval = null;
+
+        async function loadAcrosticSlider() {
+            try {
+                const response = await fetch(`/api/acrostics?publicOnly=true`);
+                const data = await response.json();
+
+                if (data.success && data.acrostics.length > 0) {
+                    acrosticSlides = data.acrostics.slice(0, 10); // 최근 10개
+                    renderAcrosticSlider();
+                    startAcrosticSlider();
+                } else {
+                    document.getElementById('acrosticSlider').innerHTML =
+                        '<div class="no-posts-message">아직 공개된 삼행시가 없습니다.<br>게시판에서 삼행시를 작성해보세요! ✍️</div>';
+                }
+            } catch (error) {
+                console.error('삼행시 로드 실패:', error);
+                document.getElementById('acrosticSlider').innerHTML =
+                    '<div class="no-posts-message">삼행시를 불러올 수 없습니다.</div>';
+            }
+        }
+
+        function renderAcrosticSlider() {
+            const sliderContainer = document.getElementById('acrosticSlider');
+            sliderContainer.innerHTML = acrosticSlides.map((acrostic, index) => `
+                <div class="acrostic-slide ${index === 0 ? 'active' : ''}" data-index="${index}">
+                    <div class="acrostic-slide-name">${escapeHtml(acrostic.name)}</div>
+                    <div class="acrostic-slide-lines">
+                        ${acrostic.lines.map((line, idx) => `
+                            <div class="acrostic-slide-line">
+                                <strong>${escapeHtml(acrostic.name[idx])}</strong> ${escapeHtml(line)}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="acrostic-slide-meta">작성자: ${escapeHtml(acrostic.author)} | ${formatDate(acrostic.createdAt)}</div>
+                </div>
+            `).join('');
+        }
+
+        function startAcrosticSlider() {
+            if (acrosticSlides.length <= 1) return;
+
+            acrosticSliderInterval = setInterval(() => {
+                nextAcrosticSlide();
+            }, 3000);
+        }
+
+        function nextAcrosticSlide() {
+            const slideElements = document.querySelectorAll('.acrostic-slide');
+            slideElements[currentAcrosticSlide].classList.remove('active');
+
+            currentAcrosticSlide = (currentAcrosticSlide + 1) % acrosticSlides.length;
+            slideElements[currentAcrosticSlide].classList.add('active');
         }
     </script>
 </body>
