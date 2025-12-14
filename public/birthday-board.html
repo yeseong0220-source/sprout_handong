@@ -53,10 +53,12 @@
         .navbar-menu a {
             color: white;
             text-decoration: none;
-            padding: 20px 25px;
+            padding: 20px 20px;
             display: block;
             transition: background 0.3s;
             position: relative;
+            min-width: 120px;
+            text-align: center;
         }
 
         .navbar-menu a:hover {
@@ -72,6 +74,7 @@
             opacity: 0;
             transition: opacity 0.3s;
             white-space: nowrap;
+            font-size: 14px;
         }
 
         .navbar-menu a:hover::after {
@@ -669,7 +672,8 @@
                 return;
             }
 
-            document.getElementById('userInfo').textContent = `${currentUser.nickname} (${currentUser.rc})`;
+            const emoji = currentUser.emoji || '';
+            document.getElementById('userInfo').textContent = `${emoji} ${currentUser.nickname} (${currentUser.rc})`;
 
             loadPosts();
             loadAcrostics();

@@ -435,7 +435,8 @@
             return;
         }
 
-        document.getElementById('userInfo').textContent = currentUser.nickname;
+        const emoji = currentUser.emoji || '';
+        document.getElementById('userInfo').textContent = `${emoji} ${currentUser.nickname}`;
 
         // 기념일 기능 초기화
         loadItems();

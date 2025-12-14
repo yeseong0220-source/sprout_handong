@@ -267,6 +267,58 @@
                 </form>
             </div>
 
+            <!-- 이모티콘 섹션 -->
+            <div class="setting-section">
+                <h2>이모티콘</h2>
+                <div class="current-value">
+                    현재 이모티콘: <strong id="currentEmoji" style="font-size: 24px;"></strong>
+                </div>
+                <p>내 이름 앞에 표시될 이모티콘을 선택하세요.</p>
+                <div class="form-group">
+                    <label>이모티콘 선택</label>
+                    <div id="emojiSelector" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
+                        <button type="button" class="emoji-btn" data-emoji="⭐">⭐</button>
+                        <button type="button" class="emoji-btn" data-emoji="❤️">❤️</button>
+                        <button type="button" class="emoji-btn" data-emoji="🌱">🌱</button>
+                        <button type="button" class="emoji-btn" data-emoji="☘️">☘️</button>
+                        <button type="button" class="emoji-btn" data-emoji="🎉">🎉</button>
+                        <button type="button" class="emoji-btn" data-emoji="🔥">🔥</button>
+                        <button type="button" class="emoji-btn" data-emoji="💫">💫</button>
+                        <button type="button" class="emoji-btn" data-emoji="🌟">🌟</button>
+                        <button type="button" class="emoji-btn" data-emoji="">없음</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 팀 섹션 -->
+            <div class="setting-section" id="teamSection">
+                <h2>팀 관리</h2>
+                <div class="current-value">
+                    현재 팀: <strong id="currentTeam"></strong>
+                </div>
+                <div id="teamMembersList" style="margin: 15px 0;"></div>
+                <div id="teamLeaderControls" style="display: none; margin-top: 20px;">
+                    <div class="warning-box" style="background: #e7f3ff; border-color: #b3d9ff; color: #004085;">
+                        <strong>👑 팀장 권한</strong>
+                        팀 이모티콘을 변경하면 모든 팀원의 이모티콘이 함께 변경됩니다.
+                    </div>
+                    <div class="form-group">
+                        <label>팀 이모티콘 선택</label>
+                        <div id="teamEmojiSelector" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
+                            <button type="button" class="emoji-btn team-emoji-btn" data-emoji="⭐">⭐</button>
+                            <button type="button" class="emoji-btn team-emoji-btn" data-emoji="❤️">❤️</button>
+                            <button type="button" class="emoji-btn team-emoji-btn" data-emoji="🌱">🌱</button>
+                            <button type="button" class="emoji-btn team-emoji-btn" data-emoji="☘️">☘️</button>
+                            <button type="button" class="emoji-btn team-emoji-btn" data-emoji="🎉">🎉</button>
+                            <button type="button" class="emoji-btn team-emoji-btn" data-emoji="🔥">🔥</button>
+                            <button type="button" class="emoji-btn team-emoji-btn" data-emoji="💫">💫</button>
+                            <button type="button" class="emoji-btn team-emoji-btn" data-emoji="🌟">🌟</button>
+                        </div>
+                    </div>
+                </div>
+                <button id="leaveTeamBtn" class="btn" style="background: #dc3545; margin-top: 15px;">팀 나가기</button>
+            </div>
+
             <!-- RC 섹션 -->
             <div class="setting-section">
                 <h2>RC (Residential College)</h2>
@@ -296,6 +348,49 @@
         </div>
     </div>
 
+    <style>
+        .emoji-btn {
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            border: 2px solid #ddd;
+            background: white;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .emoji-btn:hover {
+            transform: scale(1.1);
+            border-color: #667eea;
+        }
+
+        .emoji-btn.selected {
+            border-color: #667eea;
+            background: #f0ebfa;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        .team-member-item {
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            margin: 5px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .team-leader-badge {
+            background: #ffd700;
+            color: #333;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+    </style>
+
     <script>
         let currentUser = null;
 
@@ -316,10 +411,154 @@
             }
 
             // 현재 정보 표시
-            document.getElementById('userInfo').textContent = currentUser.nickname;
+            const emoji = currentUser.emoji || '';
+            document.getElementById('userInfo').textContent = `${emoji} ${currentUser.nickname}`;
             document.getElementById('currentNickname').textContent = currentUser.nickname;
+            document.getElementById('currentEmoji').textContent = emoji || '없음';
             document.getElementById('currentRC').textContent = currentUser.rc;
+            document.getElementById('currentTeam').textContent = currentUser.teamName || '팀 없음';
+
+            // 이모티콘 선택 초기화
+            setupEmojiSelector();
+
+            // 팀 정보 로드
+            if (currentUser.teamId) {
+                loadTeamInfo();
+            } else {
+                document.getElementById('teamSection').style.display = 'none';
+            }
         };
+
+        async function setupEmojiSelector() {
+            const buttons = document.querySelectorAll('#emojiSelector .emoji-btn');
+            buttons.forEach(btn => {
+                if (btn.dataset.emoji === (currentUser.emoji || '')) {
+                    btn.classList.add('selected');
+                }
+                btn.addEventListener('click', async () => {
+                    const emoji = btn.dataset.emoji;
+                    await updateEmoji(emoji);
+                });
+            });
+        }
+
+        async function updateEmoji(emoji) {
+            try {
+                const response = await fetch('/api/update-emoji', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: currentUser.id, emoji })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    currentUser.emoji = emoji;
+                    localStorage.setItem('user', JSON.stringify(currentUser));
+                    document.getElementById('currentEmoji').textContent = emoji || '없음';
+                    document.getElementById('userInfo').textContent = `${emoji} ${currentUser.nickname}`;
+
+                    // 선택 상태 업데이트
+                    document.querySelectorAll('#emojiSelector .emoji-btn').forEach(b => b.classList.remove('selected'));
+                    document.querySelectorAll(`#emojiSelector .emoji-btn[data-emoji="${emoji}"]`).forEach(b => b.classList.add('selected'));
+
+                    showMessage('이모티콘이 변경되었습니다!', 'success');
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('서버 오류가 발생했습니다.', 'error');
+            }
+        }
+
+        async function loadTeamInfo() {
+            try {
+                const response = await fetch(`/api/teams/${currentUser.teamId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const team = data.team;
+                    const isLeader = team.members[0] === currentUser.id;
+
+                    // 팀원 목록 표시
+                    const membersListDiv = document.getElementById('teamMembersList');
+                    const usersResponse = await fetch('/api/users');
+                    const usersData = await usersResponse.json();
+
+                    if (usersData.success) {
+                        const teamMembers = usersData.users.filter(u => team.members.includes(u.id));
+                        membersListDiv.innerHTML = `
+                            <h3 style="font-size: 14px; margin-bottom: 10px;">팀원 목록 (${teamMembers.length}명)</h3>
+                            ${teamMembers.map((member, idx) => `
+                                <div class="team-member-item">
+                                    <span style="font-size: 20px;">${member.emoji || '😊'}</span>
+                                    <span>${member.nickname}</span>
+                                    ${idx === 0 ? '<span class="team-leader-badge">팀장</span>' : ''}
+                                </div>
+                            `).join('')}
+                        `;
+                    }
+
+                    // 팀장인 경우 팀 이모티콘 변경 권한 표시
+                    if (isLeader) {
+                        document.getElementById('teamLeaderControls').style.display = 'block';
+                        const teamEmojiButtons = document.querySelectorAll('.team-emoji-btn');
+                        teamEmojiButtons.forEach(btn => {
+                            btn.addEventListener('click', async () => {
+                                if (confirm('팀 이모티콘을 변경하면 모든 팀원의 이모티콘이 변경됩니다. 계속하시겠습니까?')) {
+                                    await updateTeamEmoji(btn.dataset.emoji);
+                                }
+                            });
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('팀 정보 로드 실패:', error);
+            }
+        }
+
+        async function updateTeamEmoji(emoji) {
+            try {
+                const response = await fetch('/api/update-team-emoji', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: currentUser.id, teamId: currentUser.teamId, emoji })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    currentUser.emoji = emoji;
+                    localStorage.setItem('user', JSON.stringify(currentUser));
+                    showMessage('팀 이모티콘이 변경되었습니다!', 'success');
+                    location.reload();
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('서버 오류가 발생했습니다.', 'error');
+            }
+        }
+
+        document.getElementById('leaveTeamBtn').addEventListener('click', async () => {
+            if (!confirm('정말 팀을 나가시겠습니까?')) return;
+
+            try {
+                const response = await fetch('/api/leave-team', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: currentUser.id, teamId: currentUser.teamId })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    showMessage('팀을 나갔습니다.', 'success');
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('서버 오류가 발생했습니다.', 'error');
+            }
+        });
 
         function logout() {
             if (confirm('로그아웃 하시겠습니까?')) {

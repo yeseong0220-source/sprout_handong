@@ -15,6 +15,7 @@ app.use(express.static('public'));
 const USERS_FILE = path.join(__dirname, 'data', 'users.json');
 const POSTS_FILE = path.join(__dirname, 'data', 'posts.json');
 const ACROSTICS_FILE = path.join(__dirname, 'data', 'acrostics.json');
+const TEAMS_FILE = path.join(__dirname, 'data', 'teams.json');
 
 // 데이터 파일 초기화
 function initDataFiles() {
@@ -26,6 +27,9 @@ function initDataFiles() {
     }
     if (!fs.existsSync(ACROSTICS_FILE)) {
         fs.writeFileSync(ACROSTICS_FILE, JSON.stringify([], null, 2));
+    }
+    if (!fs.existsSync(TEAMS_FILE)) {
+        fs.writeFileSync(TEAMS_FILE, JSON.stringify([], null, 2));
     }
 }
 
@@ -45,6 +49,11 @@ function readAcrostics() {
     return JSON.parse(data);
 }
 
+function readTeams() {
+    const data = fs.readFileSync(TEAMS_FILE, 'utf8');
+    return JSON.parse(data);
+}
+
 // 데이터 쓰기 함수
 function writeUsers(users) {
     fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
@@ -56,6 +65,10 @@ function writePosts(posts) {
 
 function writeAcrostics(acrostics) {
     fs.writeFileSync(ACROSTICS_FILE, JSON.stringify(acrostics, null, 2));
+}
+
+function writeTeams(teams) {
+    fs.writeFileSync(TEAMS_FILE, JSON.stringify(teams, null, 2));
 }
 
 // 회원가입 API
@@ -87,9 +100,9 @@ app.post('/api/signup', (req, res) => {
     res.json({ success: true, message: '회원가입이 완료되었습니다.' });
 });
 
-// 프로필 설정 API (닉네임 + RC)
+// 프로필 설정 API (닉네임 + RC + 팀)
 app.post('/api/set-profile', (req, res) => {
-    const { userId, nickname, rc } = req.body;
+    const { userId, nickname, rc, teamMode, teamName, teamId } = req.body;
 
     // 입력값 검증
     if (!userId || !nickname || !rc) {
@@ -122,9 +135,72 @@ app.post('/api/set-profile', (req, res) => {
 
     users[userIndex].nickname = nickname.trim();
     users[userIndex].rc = rc;
+
+    // 팀 처리
+    let finalTeamId = null;
+    let finalTeamName = null;
+
+    if (teamMode && teamMode !== '') {
+        const teams = readTeams();
+
+        if (teamMode === 'create') {
+            // 새 팀 생성
+            if (!teamName || teamName.trim() === '') {
+                return res.status(400).json({ success: false, message: '팀 이름을 입력해주세요.' });
+            }
+
+            // 같은 RC에서 같은 이름의 팀이 있는지 확인
+            const existingTeam = teams.find(t => t.rc === rc && t.name === teamName.trim());
+            if (existingTeam) {
+                return res.status(400).json({ success: false, message: '이미 존재하는 팀 이름입니다.' });
+            }
+
+            const newTeam = {
+                id: Date.now(),
+                name: teamName.trim(),
+                rc: rc,
+                members: [userId],
+                createdAt: new Date().toISOString()
+            };
+
+            teams.push(newTeam);
+            writeTeams(teams);
+
+            finalTeamId = newTeam.id;
+            finalTeamName = newTeam.name;
+
+        } else if (teamMode === 'join') {
+            // 기존 팀 참여
+            if (!teamId) {
+                return res.status(400).json({ success: false, message: '팀을 선택해주세요.' });
+            }
+
+            const teamIndex = teams.findIndex(t => t.id === parseInt(teamId));
+            if (teamIndex === -1) {
+                return res.status(404).json({ success: false, message: '팀을 찾을 수 없습니다.' });
+            }
+
+            // 이미 멤버인지 확인
+            if (!teams[teamIndex].members.includes(userId)) {
+                teams[teamIndex].members.push(userId);
+                writeTeams(teams);
+            }
+
+            finalTeamId = teams[teamIndex].id;
+            finalTeamName = teams[teamIndex].name;
+        }
+    }
+
+    users[userIndex].teamId = finalTeamId;
+    users[userIndex].teamName = finalTeamName;
     writeUsers(users);
 
-    res.json({ success: true, message: '프로필이 설정되었습니다.' });
+    res.json({
+        success: true,
+        message: '프로필이 설정되었습니다.',
+        teamId: finalTeamId,
+        teamName: finalTeamName
+    });
 });
 
 // 닉네임 변경 API
@@ -230,7 +306,10 @@ app.post('/api/login', (req, res) => {
             username: user.username,
             name: user.name,
             nickname: user.nickname || null,
-            rc: user.rc || null
+            rc: user.rc || null,
+            teamId: user.teamId || null,
+            teamName: user.teamName || null,
+            emoji: user.emoji || ''
         }
     });
 });
@@ -391,6 +470,164 @@ app.get('/api/acrostics/:id', (req, res) => {
         res.json({ success: true, acrostic });
     } else {
         res.status(404).json({ success: false, message: '삼행시를 찾을 수 없습니다.' });
+    }
+});
+
+// 팀 목록 조회 API
+app.get('/api/teams', (req, res) => {
+    const { rc } = req.query;
+    let teams = readTeams();
+
+    // RC 필터링
+    if (rc) {
+        teams = teams.filter(team => team.rc === rc);
+    }
+
+    // 멤버 수 계산
+    const teamsWithCount = teams.map(team => ({
+        id: team.id,
+        name: team.name,
+        rc: team.rc,
+        memberCount: team.members ? team.members.length : 0,
+        createdAt: team.createdAt
+    }));
+
+    res.json({ success: true, teams: teamsWithCount });
+});
+
+// 특정 팀 상세 조회 API
+app.get('/api/teams/:id', (req, res) => {
+    const teams = readTeams();
+    const team = teams.find(t => t.id === parseInt(req.params.id));
+
+    if (team) {
+        res.json({ success: true, team });
+    } else {
+        res.status(404).json({ success: false, message: '팀을 찾을 수 없습니다.' });
+    }
+});
+
+// 사용자 목록 조회 API (팀원 확인용)
+app.get('/api/users', (req, res) => {
+    const users = readUsers();
+    const sanitizedUsers = users.map(u => ({
+        id: u.id,
+        nickname: u.nickname,
+        emoji: u.emoji || '',
+        rc: u.rc,
+        teamId: u.teamId,
+        teamName: u.teamName
+    }));
+    res.json({ success: true, users: sanitizedUsers });
+});
+
+// 이모티콘 업데이트 API
+app.post('/api/update-emoji', (req, res) => {
+    const { userId, emoji } = req.body;
+
+    if (!userId) {
+        return res.status(400).json({ success: false, message: '필수 정보가 없습니다.' });
+    }
+
+    const users = readUsers();
+    const userIndex = users.findIndex(u => u.id === userId);
+
+    if (userIndex === -1) {
+        return res.status(404).json({ success: false, message: '사용자를 찾을 수 없습니다.' });
+    }
+
+    users[userIndex].emoji = emoji || '';
+    writeUsers(users);
+
+    res.json({ success: true, message: '이모티콘이 변경되었습니다.' });
+});
+
+// 팀 이모티콘 업데이트 API (팀장 전용)
+app.post('/api/update-team-emoji', (req, res) => {
+    const { userId, teamId, emoji } = req.body;
+
+    if (!userId || !teamId) {
+        return res.status(400).json({ success: false, message: '필수 정보가 없습니다.' });
+    }
+
+    const teams = readTeams();
+    const team = teams.find(t => t.id === parseInt(teamId));
+
+    if (!team) {
+        return res.status(404).json({ success: false, message: '팀을 찾을 수 없습니다.' });
+    }
+
+    // 팀장인지 확인 (첫 번째 멤버가 팀장)
+    if (team.members[0] !== userId) {
+        return res.status(403).json({ success: false, message: '팀장만 팀 이모티콘을 변경할 수 있습니다.' });
+    }
+
+    // 모든 팀원의 이모티콘 변경
+    const users = readUsers();
+    team.members.forEach(memberId => {
+        const userIndex = users.findIndex(u => u.id === memberId);
+        if (userIndex !== -1) {
+            users[userIndex].emoji = emoji || '';
+        }
+    });
+
+    writeUsers(users);
+    res.json({ success: true, message: '팀 이모티콘이 변경되었습니다.' });
+});
+
+// 팀 탈퇴 API
+app.post('/api/leave-team', (req, res) => {
+    const { userId, teamId } = req.body;
+
+    if (!userId || !teamId) {
+        return res.status(400).json({ success: false, message: '필수 정보가 없습니다.' });
+    }
+
+    const teams = readTeams();
+    const teamIndex = teams.findIndex(t => t.id === parseInt(teamId));
+
+    if (teamIndex === -1) {
+        return res.status(404).json({ success: false, message: '팀을 찾을 수 없습니다.' });
+    }
+
+    const team = teams[teamIndex];
+
+    // 팀장인 경우 팀 삭제
+    if (team.members[0] === userId) {
+        teams.splice(teamIndex, 1);
+        writeTeams(teams);
+
+        // 모든 팀원의 팀 정보 삭제
+        const users = readUsers();
+        team.members.forEach(memberId => {
+            const userIndex = users.findIndex(u => u.id === memberId);
+            if (userIndex !== -1) {
+                users[userIndex].teamId = null;
+                users[userIndex].teamName = null;
+            }
+        });
+        writeUsers(users);
+
+        return res.json({ success: true, message: '팀이 해체되었습니다.' });
+    }
+
+    // 일반 팀원인 경우 팀에서 제거
+    const memberIndex = team.members.indexOf(userId);
+    if (memberIndex > -1) {
+        team.members.splice(memberIndex, 1);
+        writeTeams(teams);
+
+        const users = readUsers();
+        const userIndex = users.findIndex(u => u.id === userId);
+        if (userIndex !== -1) {
+            users[userIndex].teamId = null;
+            users[userIndex].teamName = null;
+        }
+        writeUsers(users);
+
+        res.json({ success: true, message: '팀을 나갔습니다.' });
+    } else {
+        res.status(400).json({ success: false, message: '팀 멤버가 아닙니다.' });
     }
 });
 
