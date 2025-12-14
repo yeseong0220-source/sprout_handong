@@ -319,6 +319,39 @@
                 <button id="leaveTeamBtn" class="btn" style="background: #dc3545; margin-top: 15px;">팀 나가기</button>
             </div>
 
+            <!-- 팀 없을 때 섹션 -->
+            <div class="setting-section" id="noTeamSection" style="display: none;">
+                <h2>팀 참여</h2>
+                <p style="margin-bottom: 20px;">팀에 참여하여 팀원들과 비공개 삼행시를 공유하세요!</p>
+
+                <div class="form-group">
+                    <label for="teamMode">팀 선택</label>
+                    <select id="teamMode" name="teamMode">
+                        <option value="">팀 옵션을 선택하세요</option>
+                        <option value="create">새 팀 만들기</option>
+                        <option value="join">기존 팀 참여하기</option>
+                    </select>
+                </div>
+
+                <div id="createTeamDiv" style="display: none;">
+                    <div class="form-group">
+                        <label for="newTeamName">새 팀 이름</label>
+                        <input type="text" id="newTeamName" placeholder="팀 이름을 입력하세요">
+                    </div>
+                    <button id="createTeamBtn" class="btn">팀 만들기</button>
+                </div>
+
+                <div id="joinTeamDiv" style="display: none;">
+                    <div class="form-group">
+                        <label for="existingTeam">기존 팀 선택</label>
+                        <select id="existingTeam">
+                            <option value="">팀을 선택하세요</option>
+                        </select>
+                    </div>
+                    <button id="joinTeamBtn" class="btn">팀 참여하기</button>
+                </div>
+            </div>
+
             <!-- RC 섹션 -->
             <div class="setting-section">
                 <h2>RC (Residential College)</h2>
@@ -423,9 +456,13 @@
 
             // 팀 정보 로드
             if (currentUser.teamId) {
+                document.getElementById('teamSection').style.display = 'block';
+                document.getElementById('noTeamSection').style.display = 'none';
                 loadTeamInfo();
             } else {
                 document.getElementById('teamSection').style.display = 'none';
+                document.getElementById('noTeamSection').style.display = 'block';
+                setupNoTeamSection();
             }
         };
 
@@ -538,6 +575,112 @@
             }
         }
 
+        async function setupNoTeamSection() {
+            // 팀 모드 선택 이벤트
+            document.getElementById('teamMode').addEventListener('change', async (e) => {
+                const mode = e.target.value;
+                document.getElementById('createTeamDiv').style.display = mode === 'create' ? 'block' : 'none';
+                document.getElementById('joinTeamDiv').style.display = mode === 'join' ? 'block' : 'none';
+
+                if (mode === 'join') {
+                    await loadAvailableTeams();
+                }
+            });
+
+            // 팀 만들기 버튼
+            document.getElementById('createTeamBtn').addEventListener('click', async () => {
+                const teamName = document.getElementById('newTeamName').value.trim();
+                if (!teamName) {
+                    showMessage('팀 이름을 입력해주세요.', 'error');
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/api/set-profile', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            userId: currentUser.id,
+                            nickname: currentUser.nickname,
+                            rc: currentUser.rc,
+                            teamMode: 'create',
+                            teamName: teamName
+                        })
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        currentUser.teamId = data.teamId;
+                        currentUser.teamName = data.teamName;
+                        localStorage.setItem('user', JSON.stringify(currentUser));
+                        showMessage('팀이 생성되었습니다!', 'success');
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showMessage(data.message, 'error');
+                    }
+                } catch (error) {
+                    showMessage('서버 오류가 발생했습니다.', 'error');
+                }
+            });
+
+            // 팀 참여하기 버튼
+            document.getElementById('joinTeamBtn').addEventListener('click', async () => {
+                const teamId = document.getElementById('existingTeam').value;
+                if (!teamId) {
+                    showMessage('참여할 팀을 선택해주세요.', 'error');
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/api/set-profile', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            userId: currentUser.id,
+                            nickname: currentUser.nickname,
+                            rc: currentUser.rc,
+                            teamMode: 'join',
+                            teamId: teamId
+                        })
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        currentUser.teamId = data.teamId;
+                        currentUser.teamName = data.teamName;
+                        localStorage.setItem('user', JSON.stringify(currentUser));
+                        showMessage('팀에 참여했습니다!', 'success');
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showMessage(data.message, 'error');
+                    }
+                } catch (error) {
+                    showMessage('서버 오류가 발생했습니다.', 'error');
+                }
+            });
+        }
+
+        async function loadAvailableTeams() {
+            try {
+                const response = await fetch(`/api/teams?rc=${encodeURIComponent(currentUser.rc)}`);
+                const data = await response.json();
+
+                const existingTeamSelect = document.getElementById('existingTeam');
+                existingTeamSelect.innerHTML = '<option value="">팀을 선택하세요</option>';
+
+                if (data.success && data.teams.length > 0) {
+                    data.teams.forEach(team => {
+                        const option = document.createElement('option');
+                        option.value = team.id;
+                        option.textContent = `${team.name} (멤버: ${team.memberCount}명)`;
+                        existingTeamSelect.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('팀 목록 로드 실패:', error);
+            }
+        }
+
         document.getElementById('leaveTeamBtn').addEventListener('click', async () => {
             if (!confirm('정말 팀을 나가시겠습니까?')) return;
 
@@ -550,6 +693,11 @@
 
                 const data = await response.json();
                 if (data.success) {
+                    // localStorage 업데이트
+                    currentUser.teamId = null;
+                    currentUser.teamName = null;
+                    localStorage.setItem('user', JSON.stringify(currentUser));
+
                     showMessage('팀을 나갔습니다.', 'success');
                     setTimeout(() => location.reload(), 1500);
                 } else {
