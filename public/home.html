@@ -294,6 +294,80 @@
             border-top: 2px solid #f0f0f0;
         }
 
+        /* D-day 섹션 */
+        .dday-section {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            margin-bottom: 40px;
+        }
+
+        .dday-section h2 {
+            font-size: 28px;
+            color: white;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 800;
+        }
+
+        .dday-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .dday-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .dday-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .dday-card-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2d3436;
+            margin-bottom: 10px;
+        }
+
+        .dday-card-date {
+            font-size: 14px;
+            color: #636e72;
+            margin-bottom: 8px;
+        }
+
+        .dday-card-counter {
+            font-size: 24px;
+            font-weight: 800;
+            color: #f5576c;
+            text-align: center;
+            padding: 15px;
+            background: #fff5f7;
+            border-radius: 8px;
+        }
+
+        .dday-card-counter.positive {
+            color: #00b894;
+        }
+
+        .dday-card-counter.today {
+            color: #fdcb6e;
+        }
+
+        .no-dday-message {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 16px;
+        }
+
         .features-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -388,6 +462,14 @@
             <div class="rc-badge" id="rcBadge"></div>
         </div>
 
+        <!-- D-day 섹션 -->
+        <div class="dday-section">
+            <h2>📅 나의 D-day</h2>
+            <div class="dday-list" id="ddayList">
+                <div class="no-dday-message">기념일을 불러오는 중...</div>
+            </div>
+        </div>
+
         <!-- 삼행시 슬라이더 -->
         <div class="acrostic-slider-section">
             <h2>✨ 오늘의 삼행시 ✨</h2>
@@ -456,6 +538,7 @@
             // 게시글 슬라이더 로드
             loadPostsSlider();
             loadAcrosticSlider();
+            loadDdayList();
         };
 
         function logout() {
@@ -590,6 +673,80 @@
 
             currentAcrosticSlide = (currentAcrosticSlide + 1) % acrosticSlides.length;
             slideElements[currentAcrosticSlide].classList.add('active');
+        }
+
+        // D-day 로드 함수
+        function loadDdayList() {
+            const STORAGE_KEY = "handong_anniv_v1";
+            const saved = localStorage.getItem(STORAGE_KEY);
+
+            if (!saved) {
+                document.getElementById('ddayList').innerHTML =
+                    '<div class="no-dday-message">아직 기념일이 없습니다.<br>추억 달력에서 기념일을 추가해보세요! 📅</div>';
+                return;
+            }
+
+            try {
+                const items = JSON.parse(saved);
+
+                if (!items || items.length === 0) {
+                    document.getElementById('ddayList').innerHTML =
+                        '<div class="no-dday-message">아직 기념일이 없습니다.<br>추억 달력에서 기념일을 추가해보세요! 📅</div>';
+                    return;
+                }
+
+                // D-day 계산
+                const now = new Date();
+                now.setHours(0, 0, 0, 0);
+
+                const itemsWithDday = items.map(item => {
+                    const target = new Date(item.date);
+                    target.setHours(0, 0, 0, 0);
+                    const diff = Math.floor((target - now) / (1000 * 60 * 60 * 24));
+                    return { ...item, dday: diff };
+                });
+
+                // D-day가 가까운 순으로 정렬 (절대값 기준, 미래 우선)
+                itemsWithDday.sort((a, b) => {
+                    if (a.dday >= 0 && b.dday >= 0) return a.dday - b.dday;
+                    if (a.dday < 0 && b.dday < 0) return b.dday - a.dday;
+                    return b.dday - a.dday;
+                });
+
+                // 상위 6개만 표시
+                const topItems = itemsWithDday.slice(0, 6);
+
+                document.getElementById('ddayList').innerHTML = topItems.map(item => {
+                    let ddayText = '';
+                    let ddayClass = '';
+
+                    if (item.dday === 0) {
+                        ddayText = 'D-Day';
+                        ddayClass = 'today';
+                    } else if (item.dday > 0) {
+                        ddayText = `D-${item.dday}`;
+                        ddayClass = '';
+                    } else {
+                        ddayText = `D+${Math.abs(item.dday)}`;
+                        ddayClass = 'positive';
+                    }
+
+                    const dateObj = new Date(item.date);
+                    const dateStr = `${dateObj.getFullYear()}.${String(dateObj.getMonth() + 1).padStart(2, '0')}.${String(dateObj.getDate()).padStart(2, '0')}`;
+
+                    return `
+                        <div class="dday-card">
+                            <div class="dday-card-name">${escapeHtml(item.name)}</div>
+                            <div class="dday-card-date">${dateStr}</div>
+                            <div class="dday-card-counter ${ddayClass}">${ddayText}</div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('D-day 로드 실패:', error);
+                document.getElementById('ddayList').innerHTML =
+                    '<div class="no-dday-message">기념일을 불러올 수 없습니다.</div>';
+            }
         }
     </script>
 </body>
