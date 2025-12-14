@@ -4,6 +4,11 @@
     "username": "admin",
     "password": "1234",
     "name": "admin",
-    "createdAt": "2025-12-10T12:45:50.957Z"
+    "createdAt": "2025-12-10T12:45:50.957Z",
+    "nickname": "Testing",
+    "rc": "장기려 College",
+    "teamId": 1765671814987,
+    "teamName": "1",
+    "emoji": "⭐"
   }
 ]
