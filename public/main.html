@@ -102,21 +102,62 @@
         @media (max-width: 768px) {
             .navbar-content {
                 flex-direction: column;
-                padding: 10px 20px;
+                padding: 10px;
+            }
+
+            .navbar-brand {
+                font-size: 20px;
+                padding: 15px 0 10px 0;
             }
 
             .navbar-menu {
                 width: 100%;
                 justify-content: center;
                 flex-wrap: wrap;
+                gap: 0;
             }
 
             .navbar-menu a {
-                padding: 15px 20px;
+                padding: 12px 15px;
+                font-size: 14px;
+                min-width: auto;
             }
 
             .navbar-user {
                 margin-top: 10px;
+                flex-wrap: wrap;
+                justify-content: center;
+                width: 100%;
+                font-size: 13px;
+            }
+
+            .navbar-user span {
+                font-size: 13px;
+            }
+
+            .settings-btn, .logout-btn {
+                padding: 6px 15px;
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar-brand {
+                font-size: 18px;
+            }
+
+            .navbar-menu a {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+
+            .navbar-user {
+                gap: 8px;
+            }
+
+            .settings-btn, .logout-btn {
+                padding: 5px 12px;
+                font-size: 12px;
             }
         }
     </style>
