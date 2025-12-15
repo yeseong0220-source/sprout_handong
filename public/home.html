@@ -487,7 +487,7 @@
             sliderContainer.innerHTML = slides.map((post, index) => `
                 <div class="slide ${index === 0 ? 'active' : ''}" data-index="${index}">
                     <div class="slide-title" onclick="location.href='board.html'">${escapeHtml(post.title)}</div>
-                    <div class="slide-meta">작성자: ${escapeHtml(post.author)} | ${formatDate(post.createdAt)}</div>
+                    <div class="slide-meta">작성자: 익명 | ${formatDate(post.createdAt)}</div>
                     <div class="slide-content">${escapeHtml(post.content.substring(0, 200))}${post.content.length > 200 ? '...' : ''}</div>
                 </div>
             `).join('');
@@ -563,7 +563,7 @@
                             </div>
                         `).join('')}
                     </div>
-                    <div class="acrostic-slide-meta">작성자: ${escapeHtml(acrostic.author)} | ${formatDate(acrostic.createdAt)}</div>
+                    <div class="acrostic-slide-meta">작성자: 익명 | ${formatDate(acrostic.createdAt)}</div>
                 </div>
             `).join('');
         }
@@ -596,7 +596,12 @@
             }
 
             try {
-                const items = JSON.parse(saved);
+                let items = JSON.parse(saved);
+
+                // 팀원끼리만 D-day 공유 (같은 teamId인 것만 필터링)
+                if (currentUser.teamId) {
+                    items = items.filter(item => item.teamId === currentUser.teamId);
+                }
 
                 if (!items || items.length === 0) {
                     document.getElementById('ddayList').innerHTML =

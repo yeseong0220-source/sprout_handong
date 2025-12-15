@@ -437,7 +437,7 @@
         return;
       }
 
-      const currentUser = JSON.parse(userStr);
+      currentUser = JSON.parse(userStr);
       if (!currentUser.nickname || !currentUser.rc) {
         alert('먼저 프로필을 설정해주세요.');
         window.location.href = 'nickname.html';
@@ -452,6 +452,7 @@
     const STORAGE_KEY = "handong_anniv_v1";
 
     let items = [];
+    let currentUser = null; // 사용자 정보 저장
 
     // 현재 보고 있는 연/월
     let currentYear = new Date().getFullYear();
@@ -489,7 +490,8 @@
         id: Date.now().toString(),
         name,
         date,
-        createdAt: Date.now()
+        createdAt: Date.now(),
+        teamId: currentUser.teamId || null
       });
 
       $inName.value = "";

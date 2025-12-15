@@ -665,7 +665,7 @@
                             ${post.authorId === currentUser.id ? `<button class="delete-btn" onclick="deletePost(${post.id})">삭제</button>` : ''}
                         </div>
                     </div>
-                    <div class="post-meta">작성자: ${escapeHtml(post.author)} | 작성일: ${formatDate(post.createdAt)}</div>
+                    <div class="post-meta">작성자: 익명 | 작성일: ${formatDate(post.createdAt)}</div>
                     <div class="post-content-preview">${escapeHtml(post.content.substring(0, 100))}${post.content.length > 100 ? '...' : ''}</div>
                 </div>
             `).join('');
@@ -707,7 +707,7 @@
                     const post = data.post;
                     document.getElementById('modalTitle').textContent = post.title;
                     document.getElementById('modalMeta').textContent =
-                        `작성자: ${post.author} | 작성일: ${formatDate(post.createdAt)} | 좋아요: ${post.likes || 0}`;
+                        `작성자: 익명 | 작성일: ${formatDate(post.createdAt)} | 좋아요: ${post.likes || 0}`;
                     document.getElementById('modalBody').textContent = post.content;
                     document.getElementById('postModal').style.display = 'block';
                 }
@@ -978,7 +978,7 @@
                         `).join('')}
                     </div>
                     <div class="acrostic-card-meta">
-                        작성자: ${escapeHtml(acrostic.author)} | ${formatDate(acrostic.createdAt)}
+                        작성자: 익명 | ${formatDate(acrostic.createdAt)}
                         ${acrostic.authorId === currentUser.id ? `<button class="delete-btn" onclick="deleteAcrostic(${acrostic.id})" style="margin-left: 10px; font-size: 11px; padding: 3px 8px;">삭제</button>` : ''}
                     </div>
                 </div>
