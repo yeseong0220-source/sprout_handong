@@ -574,9 +574,6 @@
                 return;
             }
 
-            const emoji = currentUser.emoji || '';
-            document.getElementById('userInfo').textContent = `${emoji} ${currentUser.nickname} (${currentUser.rc})`;
-
             loadPosts();
             loadAcrostics();
             setupAcrosticInput();
