@@ -502,13 +502,16 @@
             <h2>✨ 삼행시 ✨</h2>
 
             <div class="acrostic-form">
-                <input type="text" id="acrosticName" class="acrostic-name-input" placeholder="이름을 입력하세요 (예: 민수)" maxlength="5">
+                <div style="background: #fff3cd; padding: 12px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #ffc107;">
+                    <strong>💡 사용법:</strong> 아래 입력창에 이름을 입력하면 자동으로 삼행시 작성란이 나타납니다!
+                </div>
+                <input type="text" id="acrosticName" class="acrostic-name-input" placeholder="👉 여기에 이름을 입력하세요 (예: 민수)" maxlength="5">
                 <div id="acrosticLines" class="acrostic-lines"></div>
                 <div class="acrostic-visibility">
                     <input type="checkbox" id="acrosticPublic" checked>
                     <label for="acrosticPublic">공개 (홈 화면에 표시)</label>
                 </div>
-                <button id="acrosticSubmit" class="acrostic-submit-btn">삼행시 작성하기</button>
+                <button id="acrosticSubmit" class="acrostic-submit-btn">삼행시 작성 완료</button>
             </div>
 
             <div id="acrosticList" class="acrostic-list"></div>
