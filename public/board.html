@@ -820,11 +820,26 @@
             const nameInput = document.getElementById('acrosticName');
             const linesDiv = document.getElementById('acrosticLines');
 
-            nameInput.addEventListener('input', () => {
+            console.log('삼행시 입력 설정 시작');
+            console.log('nameInput:', nameInput);
+            console.log('linesDiv:', linesDiv);
+
+            if (!nameInput || !linesDiv) {
+                console.error('삼행시 입력 요소를 찾을 수 없습니다!');
+                return;
+            }
+
+            nameInput.addEventListener('input', (e) => {
+                console.log('이름 입력 이벤트 발생:', e.target.value);
                 const name = nameInput.value.trim();
                 linesDiv.innerHTML = '';
 
-                if (name.length === 0) return;
+                if (name.length === 0) {
+                    console.log('이름이 비어있음');
+                    return;
+                }
+
+                console.log(`${name.length}개의 입력 필드 생성 중...`);
 
                 for (let i = 0; i < name.length; i++) {
                     const lineGroup = document.createElement('div');
@@ -835,8 +850,11 @@
                     `;
                     linesDiv.appendChild(lineGroup);
                 }
+
+                console.log('입력 필드 생성 완료');
             });
 
+            console.log('이벤트 리스너 등록 완료');
             document.getElementById('acrosticSubmit').addEventListener('click', submitAcrostic);
         }
 
