@@ -156,23 +156,39 @@
     }
 
     button.primary {
-      background: var(--accent);
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
       color: white;
+      box-shadow: 0 4px 12px rgba(123, 104, 238, 0.2);
+      border: none;
     }
 
     button.primary:hover {
-      background: var(--accent-hover);
-      box-shadow: 0 4px 10px rgba(123, 104, 238, 0.3);
+      background: linear-gradient(135deg, var(--accent-hover) 0%, #6153c9 100%);
+      box-shadow: 0 6px 20px rgba(123, 104, 238, 0.35);
+      transform: translateY(-2px);
+    }
+
+    button.primary:active {
+      transform: translateY(0);
+      box-shadow: 0 3px 10px rgba(123, 104, 238, 0.25);
     }
 
     button.ghost {
-      background: transparent;
+      background: white;
       color: var(--text-muted);
+      border: 1px solid #E0E0E0;
     }
 
     button.ghost:hover {
-      background: #F5F5F5;
+      background: #F8F8F8;
       color: var(--text-main);
+      border-color: #C0C0C0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    button.ghost:active {
+      transform: translateY(0);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
     }
 
     .list-wrapper {
@@ -247,13 +263,16 @@
 
     .del-btn {
       opacity: 0;
-      padding: 6px;
+      padding: 6px 10px;
       margin-left: 12px;
-      color: #CCC;
-      font-size: 16px;
-      background: none;
+      color: white;
+      font-size: 14px;
+      background: #ff6b6b;
       border: none;
+      border-radius: 6px;
       cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 2px 4px rgba(255, 107, 107, 0.2);
     }
 
     .item:hover .del-btn {
@@ -261,9 +280,13 @@
     }
 
     .del-btn:hover {
-      color: var(--danger);
-      background: #FFF0F0;
-      border-radius: 4px;
+      background: #ee5a52;
+      transform: scale(1.05);
+      box-shadow: 0 4px 8px rgba(255, 107, 107, 0.3);
+    }
+
+    .del-btn:active {
+      transform: scale(0.98);
     }
 
     /* 캘린더 스타일 */
@@ -331,25 +354,32 @@
     }
 
     .nav-btn {
-      background: #f0ebfa;
-      color: #667eea;
-      border: none;
-      border-radius: 8px;
-      padding: 6px 12px;
-      font-size: 14px;
+      background: white;
+      color: var(--accent);
+      border: 2px solid var(--accent);
+      border-radius: 10px;
+      padding: 8px 16px;
+      font-size: 16px;
       font-weight: bold;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex;
       align-items: center;
       justify-content: center;
+      box-shadow: 0 2px 6px rgba(123, 104, 238, 0.08);
     }
 
     .nav-btn:hover {
-      background: #667eea;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
       color: white;
-      transform: translateY(-1px);
-      box-shadow: 0 2px 5px rgba(102, 126, 234, 0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(123, 104, 238, 0.25);
+      border-color: var(--accent-hover);
+    }
+
+    .nav-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 8px rgba(123, 104, 238, 0.15);
     }
   </style>
 </head>
