@@ -215,6 +215,11 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             gap: 15px;
+            justify-content: center;
+        }
+
+        .dday-list.center-align {
+            justify-items: center;
         }
 
         .dday-card {
@@ -608,17 +613,23 @@
                     return { ...item, dday: diff };
                 });
 
-                // D-day가 가까운 순으로 정렬 (절대값 기준, 미래 우선)
+                // D-day가 가까운 순으로 정렬 (오늘 기준 가까운 날짜 우선)
                 itemsWithDday.sort((a, b) => {
+                    // 둘 다 미래 날짜인 경우: 가까운 미래 우선
                     if (a.dday >= 0 && b.dday >= 0) return a.dday - b.dday;
+                    // 둘 다 과거 날짜인 경우: 최근 과거 우선 (절대값이 작은 것)
                     if (a.dday < 0 && b.dday < 0) return b.dday - a.dday;
-                    return b.dday - a.dday;
+                    // 하나는 미래, 하나는 과거: 미래 우선
+                    return a.dday >= 0 ? -1 : 1;
                 });
 
                 // 상위 6개만 표시
                 const topItems = itemsWithDday.slice(0, 6);
 
-                document.getElementById('ddayList').innerHTML = topItems.map(item => {
+                const ddayListEl = document.getElementById('ddayList');
+                ddayListEl.className = 'dday-list' + (topItems.length <= 3 ? ' center-align' : '');
+
+                ddayListEl.innerHTML = topItems.map(item => {
                     let ddayText = '';
                     let ddayClass = '';
 

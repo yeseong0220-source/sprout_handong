@@ -114,6 +114,30 @@
       transition: all 0.2s;
     }
 
+    input[type="date"] {
+      border: 2px solid var(--accent);
+      background: linear-gradient(135deg, #F8F7FF 0%, #FEFEFF 100%);
+      font-weight: 600;
+      color: var(--accent);
+      cursor: pointer;
+      padding: 12px 14px;
+      box-shadow: 0 2px 8px rgba(123, 104, 238, 0.1);
+    }
+
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      cursor: pointer;
+      font-size: 20px;
+      padding: 6px;
+      border-radius: 6px;
+      transition: all 0.2s;
+      background: rgba(123, 104, 238, 0.1);
+    }
+
+    input[type="date"]::-webkit-calendar-picker-indicator:hover {
+      background: rgba(123, 104, 238, 0.25);
+      transform: scale(1.1);
+    }
+
     input:focus {
       background: white;
       border-color: var(--accent);
